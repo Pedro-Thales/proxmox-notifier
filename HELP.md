@@ -74,3 +74,19 @@ To run your existing tests in a native image, run the following goal:
 $ ./mvnw test -PnativeTest
 ```
 
+
+### Executable with Native Build Tools for windows
+- Install graalvm
+- Run installer from gu if in windows with following command
+```
+gu install native-image
+```
+- Run a .mvnw clean install
+- Then run the following commands on cmd to create json files output
+
+```
+java.exe -agentlib:native-image-agent=config-output-dir=./src/main/resources/META-INF/native-image/  -jar ./target/proxmox-notifier-0.0.1-SNAPSHOT.jar
+java.exe -jar ./target/proxmox-notifier-0.0.1-SNAPSHOT.jar
+native-image -jar ./target/proxmox-notifier-0.0.1-SNAPSHOT.jar proxmox-notifier
+```
+

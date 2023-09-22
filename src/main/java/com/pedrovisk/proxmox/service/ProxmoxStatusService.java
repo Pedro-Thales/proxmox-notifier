@@ -4,6 +4,7 @@ package com.pedrovisk.proxmox.service;
 import com.pedrovisk.proxmox.api.ProxmoxApi;
 import com.pedrovisk.proxmox.repository.UsersInMemoryRepository;
 import com.pedrovisk.proxmox.utils.MeasureRunTime;
+import io.micrometer.observation.annotation.Observed;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -20,6 +21,7 @@ public class ProxmoxStatusService {
     }
 
     @MeasureRunTime
+    @Observed(contextualName = "proxmox.get-memory", name = "proxmox.get-memory-usage")
     public String getMemory() {
 
         var status = proxmoxApi.getNodeStatus();
@@ -37,6 +39,7 @@ public class ProxmoxStatusService {
     }
 
     @MeasureRunTime
+    @Observed(contextualName = "proxmox.get-swap", name = "proxmox.get-swap-usage")
     public String getSwap() {
 
         var status = proxmoxApi.getNodeStatus();
