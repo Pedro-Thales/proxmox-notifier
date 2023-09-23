@@ -9,8 +9,8 @@ import lombok.Data;
 @Builder
 @ToString
 public class Rootfs{
-    public long free;
-    public long used;
-    public long total;
-    public long avail;
+    public double free;
+    public double used;
+    public double total;
+    public double avail;
 }

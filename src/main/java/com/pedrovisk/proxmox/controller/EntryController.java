@@ -31,5 +31,12 @@ public class EntryController {
         return swapFree;
     }
 
+    @GetMapping("/disk")
+    String diskMonitor() {
+
+        var diskFree = statusService.getDisk();
+
+        return diskFree;
+    }
 
 }
