@@ -10,10 +10,14 @@ public class Scheduler {
     @Autowired
     ProxmoxStatusService statusService;
 
+    @Autowired
+    ContainersStatusService containersStatusService;
+
     @Scheduled(fixedDelayString = "${update.frequency.node-status}")
     public void shutdownJob() {
 
         statusService.getNodeStatus();
+        containersStatusService.getAllLxcStatus();
 
     }
 }
