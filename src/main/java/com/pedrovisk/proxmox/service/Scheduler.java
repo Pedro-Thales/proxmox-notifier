@@ -13,11 +13,21 @@ public class Scheduler {
     @Autowired
     ContainersStatusService containersStatusService;
 
-    @Scheduled(fixedDelayString = "${update.frequency.node-status}")
-    public void shutdownJob() {
+    @Autowired
+    FirewallLogMonitorService firewallLogMonitorService;
+
+    //@Scheduled(fixedDelayString = "${update.frequency.node-status}")
+    public void statusScheduler() {
 
         statusService.getNodeStatus();
         containersStatusService.getAllLxcStatus();
+
+    }
+
+    @Scheduled(fixedDelayString = "${update.frequency.firewall-log}")
+    public void getFirewallLogsScheduler() throws InterruptedException {
+
+        firewallLogMonitorService.getFirewallLogs();
 
     }
 }
