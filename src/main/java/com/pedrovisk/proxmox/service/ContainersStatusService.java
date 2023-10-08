@@ -5,25 +5,25 @@ import com.pedrovisk.proxmox.api.ProxmoxApi;
 import com.pedrovisk.proxmox.configuration.ThresholdProperties;
 import com.pedrovisk.proxmox.models.proxmox.ContainerStatus;
 import com.pedrovisk.proxmox.utils.MeasureRunTime;
-import io.micrometer.observation.annotation.Observed;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 @Service
+@RequiredArgsConstructor
 public class ContainersStatusService {
-    private final ProxmoxApi proxmoxApi;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContainersStatusService.class);
+
+
+    private final ProxmoxApi proxmoxApi;
     private final ThresholdProperties thresholdProperties;
 
-    public ContainersStatusService(ProxmoxApi proxmoxApi, ThresholdProperties thresholdProperties) {
-        this.proxmoxApi = proxmoxApi;
-        this.thresholdProperties = thresholdProperties;
-    }
-
     @MeasureRunTime
-    @Observed(contextualName = "proxmox.get-lxc-status", name = "proxmox.get-lxc-status-usage")
     public void getAllLxcStatus() {
 
         var status = proxmoxApi.getLxcContainersStatus();
@@ -46,15 +46,15 @@ public class ContainersStatusService {
             if (freeMemoryPercent.compareTo(BigDecimal.valueOf(thresholdProperties.freeMemory())) < 1) {
                 //TODO Notify using the webhook, email and ntfy?
                 //TODO use string template from java 21
-                System.out.println("Container " + lxc.getName() + " with free memory getting dangerous. Actual free: " + freeMemoryPercent + " Threshold: " + thresholdProperties.freeMemory());
+                LOGGER.info("Container " + lxc.getName() + " with free memory getting dangerous. Actual free: " + freeMemoryPercent + " Threshold: " + thresholdProperties.freeMemory());
             }
 
             if (freeSwapPercent.compareTo(BigDecimal.valueOf(thresholdProperties.freeSwap())) < 1) {
-                System.out.println("Container " + lxc.getName() + " with free swap getting dangerous. Actual free: " + freeSwapPercent + " Threshold: " + thresholdProperties.freeSwap());
+                LOGGER.info("Container " + lxc.getName() + " with free swap getting dangerous. Actual free: " + freeSwapPercent + " Threshold: " + thresholdProperties.freeSwap());
             }
 
             if (freeRootFsPercent.compareTo(BigDecimal.valueOf(thresholdProperties.freeRootfs())) < 1) {
-                System.out.println("Container " + lxc.getName() + " with free rootfs getting dangerous. Actual free: " + freeRootFsPercent + " Threshold: " + thresholdProperties.freeRootfs());
+                LOGGER.info("Container " + lxc.getName() + " with free rootfs getting dangerous. Actual free: " + freeRootFsPercent + " Threshold: " + thresholdProperties.freeRootfs());
             }
 
 
