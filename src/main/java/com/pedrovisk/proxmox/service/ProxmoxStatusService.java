@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -23,6 +25,7 @@ public class ProxmoxStatusService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxmoxStatusService.class);
 
+    private final JavaMailSender emailSender;
     private final ProxmoxApi proxmoxApi;
     private final ThresholdProperties thresholdProperties;
 
@@ -40,6 +43,13 @@ public class ProxmoxStatusService {
         LOGGER.info("Free memory: " + percentFree + "%");
 
         //validate if the available memory is less than the threshold defined, if it is so notify via the webhook or something else
+
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("memory-usage@myserver.com");
+        message.setTo("pedrottb01@gmail.com");
+        message.setSubject("High memory");
+        message.setText("Current memory usage is: " + percentUsed);
+        emailSender.send(message);
 
         return "Free memory: " + percentFree + "%";
     }
