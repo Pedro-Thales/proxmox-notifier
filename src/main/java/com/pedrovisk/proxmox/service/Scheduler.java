@@ -16,7 +16,7 @@ public class Scheduler {
     @Autowired
     FirewallLogMonitorService firewallLogMonitorService;
 
-    //@Scheduled(fixedDelayString = "${update.frequency.node-status}")
+    @Scheduled(fixedDelayString = "${update.frequency.node-status}")
     public void statusScheduler() {
 
         statusService.getNodeStatus();

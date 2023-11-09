@@ -37,21 +37,50 @@ public class ProxmoxStatusService {
 
         var memory = status.getData().getMemory();
         LOGGER.info("memory = " + memory);
-        var percentUsed = BigDecimal.valueOf((memory.getUsed() / memory.getTotal()) * 100).setScale(2, RoundingMode.HALF_UP);
+        var percentUsed = memory.getUsed().divide(memory.getTotal(), 4, RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_UP);
         LOGGER.info("Used memory: " + percentUsed + "%");
-        var percentFree = BigDecimal.valueOf((memory.getFree() / memory.getTotal()) * 100).setScale(2, RoundingMode.HALF_UP);
+        var percentFree = memory.getFree().divide(memory.getTotal(), 4, RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_UP);
         LOGGER.info("Free memory: " + percentFree + "%");
 
         //validate if the available memory is less than the threshold defined, if it is so notify via the webhook or something else
+        sendEmailAsync(percentUsed);
 
+        return "Free memory: " + percentFree + "%";
+    }
+
+    private void sendEmailAsync(BigDecimal percentUsed) {
+        Runnable runnable = () -> sendEmail(percentUsed);
+
+        Thread.ofVirtual()
+                .name("mailer-thread")
+                .start(runnable);
+
+    }
+
+    private void sendEmailFake() throws InterruptedException {
+        long initTime = System.currentTimeMillis();
+        LOGGER.info("Sending Email! ");
+        Thread.sleep(10000);
+        long executionTime = System.currentTimeMillis() - initTime;
+        LOGGER.info("Email sent in: " + executionTime + "ms" + " in the thread: " + Thread.currentThread().threadId());
+    }
+
+
+    private void sendEmail(BigDecimal percentUsed) {
+        long initTime = System.currentTimeMillis();
+        LOGGER.info("Email sending started! ");
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("memory-usage@myserver.com");
         message.setTo("pedrottb01@gmail.com");
-        message.setSubject("High memory");
+        message.setSubject("High memory usage");
         message.setText("Current memory usage is: " + percentUsed);
+        LOGGER.info("Sending email! ");
         emailSender.send(message);
-
-        return "Free memory: " + percentFree + "%";
+        LOGGER.info("Email sent! ");
+        long executionTime = System.currentTimeMillis() - initTime;
+        LOGGER.info("Email sent in: " + executionTime + "ms");
     }
 
     @MeasureRunTime
@@ -95,7 +124,11 @@ public class ProxmoxStatusService {
         var status = proxmoxApi.getNodeStatus();
 
         var memory = status.getData().getMemory();
-        var freeMemoryPercent = BigDecimal.valueOf((memory.getFree() / memory.getTotal()) * 100).setScale(2, RoundingMode.HALF_UP);
+        var freeMemoryPercent = memory.getFree().divide(memory.getTotal(), 4, RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_UP);
+
+        var usedMemoryPercent = memory.getUsed().divide(memory.getTotal(), 4, RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_UP);
 
         var swap = status.getData().getSwap();
         var freeSwapPercent = BigDecimal.valueOf((swap.getFree() / swap.getTotal()) * 100).setScale(2, RoundingMode.HALF_UP);
@@ -116,6 +149,8 @@ public class ProxmoxStatusService {
 
             LOGGER.info(STR.
                     "Free memory getting dangerous. Actual free: \{freeMemoryPercent} Threshold: \{thresholdProperties.freeMemory()}");
+
+            sendEmailAsync(usedMemoryPercent);
 
         }
 
