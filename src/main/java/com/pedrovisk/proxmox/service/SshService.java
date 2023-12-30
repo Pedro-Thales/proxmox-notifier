@@ -3,65 +3,98 @@ package com.pedrovisk.proxmox.service;
 
 import com.google.common.base.CharMatcher;
 import com.pedrovisk.proxmox.configuration.SshProperties;
+import com.pedrovisk.proxmox.telegram.TelegramApi;
 import com.pedrovisk.proxmox.utils.SshUtils;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
+import java.util.Map;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class SshService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SshService.class);
 
     private final SshProperties sshProperties;
+    private final TelegramApi telegramApi;
 
-    public SshService(SshProperties sshProperties) {
-        this.sshProperties = sshProperties;
-    }
 
     public void call() throws Exception {
 
-        //TODO print it nicely, verify threshold, and send it to telegram, email...
+        int temperatureThreshold = 50;
+        int cpuTemperatureThreshold = 50;
 
-        System.out.println("========================== COMMANDS ==========================");
-        //Get Disks readings
-        getFromSmartctlCommand("sda", "Current Temperature");
-        getFromSmartctlCommand("sdb", "Current Temperature");
-        getFromSmartctlCommand("sdc", "Current Temperature");
-        getFromSmartctlCommand("sdd", "Current Temperature");
-        getFromSmartctlCommand("nvme0n1", "Temperature");
+        var hddMap = Map.of("sda", "Current Temperature",
+                        "sdb", "Current Temperature",
+                        "sdc", "Current Temperature",
+                        "sdd", "Current Temperature",
+                        "nvme0n1", "Temperature:");
 
+        for (var entries : hddMap.entrySet()) {
+            var result = getFromSmartctlCommand(entries.getKey(), entries.getValue());
 
-        //Get from sensors(cpu...)
-        //TODO make it support multiple filters
-        getFromSensorsCommand("Package id 0");
+            if (result > temperatureThreshold ) {
+                sendMessageToTelegram(entries.getKey(), result);
+            }
+        }
 
-        System.out.println("========================== END ==========================");
+        var result = getFromSensorsCommand("Package id 0");
+        if (result > cpuTemperatureThreshold ) {
+            sendMessageToTelegram("CPU", result);
+        }
+
 
     }
 
-    private void getFromSmartctlCommand(String deviceId, String grepFilter) throws Exception {
+    public void sendMessageToTelegram(String device, Integer temperature) {
+        try {
+
+            var message = STR.
+                    """
+                        *Temperature Alert:*
+                        Device \{device}: *\{temperature}*
+                    """;
+
+            LOGGER.info(message);
+
+            String escapedMessage = message.replace(".", "\\.");
+
+            var response = telegramApi.sendMessageToBotChatDefault(escapedMessage);
+            if (response.getStatusCode() != HttpStatus.OK) {
+                LOGGER.error("Error while sending message to telegram! Response: {} ", response);
+                throw new TelegramApiException("Status was not OK");
+            }
+        } catch (Exception e) {
+            LOGGER.error("Not able to sent message to telegram, check logs to see more information! ", e);
+        }
+
+    }
+
+    private Integer getFromSmartctlCommand(String deviceId, String grepFilter) throws Exception {
         String command = STR."smartctl -l scttemp /dev/\{deviceId} | grep '\{grepFilter}'";
+
         if (deviceId.startsWith("nvme")) {
             command = STR."smartctl -a /dev/\{deviceId} | grep '\{grepFilter}'";
         }
 
         var result = executeSshCommand(command);
-        var check = extractDigits(result);
-        System.out.println(check);
+        return extractDigits(result);
     }
 
-    private void getFromSensorsCommand(String grepFilter) throws Exception {
+    private Integer getFromSensorsCommand(String grepFilter) throws Exception {
 
         String command = STR."sensors | grep '\{grepFilter}'";
         var cmd6 = executeSshCommand(command);
-        System.out.println(cmd6);
+        //TODO maybe use if (indexOf(".") = -1) then return
         var cmd6subs = cmd6.substring(cmd6.indexOf(":"), cmd6.indexOf("."));
-        System.out.println(cmd6subs);
-        String check = extractDigits(cmd6subs);
-        System.out.println(check);
+        return extractDigits(cmd6subs);
     }
 
     private String executeSshCommand(String command) throws Exception {
@@ -70,12 +103,26 @@ public class SshService {
         var host = sshProperties.host();
         var port = sshProperties.port();
 
-        return SshUtils.executeSshCommand(username, password, host, port, command);
+        var commandResult = SshUtils.executeSshCommand(username, password, host, port, command);
+
+        LOGGER.debug(STR."Command executed: [ \{command} ] ");
+        LOGGER.debug(STR."Command result: [ \{commandResult} ] ");
+
+        return commandResult;
     }
 
-    private static String extractDigits(String text) {
+    private static Integer extractDigits(String text) {
         CharMatcher ASCII_DIGITS = CharMatcher.inRange('0', '9').precomputed();
-        return ASCII_DIGITS.retainFrom(text);
+        LOGGER.debug(STR."Extracting numbers from: \{text}");
+        Integer resultInt = null;
+        try {
+            resultInt = Integer.parseInt(ASCII_DIGITS.retainFrom(text));
+        } catch (Exception e) {
+            LOGGER.error(STR."Error while trying to convert to integer from text: \{text}");
+            return null;
+        }
+
+        return resultInt;
     }
 
 

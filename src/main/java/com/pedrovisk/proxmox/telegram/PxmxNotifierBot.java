@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import org.telegram.abilitybots.api.bot.AbilityBot;
 import org.telegram.abilitybots.api.objects.Ability;
 
+import static org.telegram.abilitybots.api.db.MapDBContext.onlineInstance;
 import static org.telegram.abilitybots.api.objects.Locality.USER;
 import static org.telegram.abilitybots.api.objects.Privacy.PUBLIC;
 
@@ -21,7 +22,7 @@ public class PxmxNotifierBot extends AbilityBot {
     public static final String START_DESCRIPTION = "Starts the bot";
 
     public PxmxNotifierBot(TelegramProperties properties) {
-        super(properties.token(), "PxmxNotifierBot");
+        super(properties.token(), "PxmxNotifierBot", onlineInstance(properties.dbPath()));
         this.properties = properties;
         this.responseHandler = new TelegramResponseHandler(silent, db);
     }
