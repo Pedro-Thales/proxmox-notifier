@@ -2,6 +2,8 @@ package com.pedrovisk.proxmox.service;
 
 import com.pedrovisk.proxmox.api.ProxmoxApi;
 import com.pedrovisk.proxmox.configuration.FirewallLogsProperties;
+import com.pedrovisk.proxmox.models.json.NodeConfiguration;
+import com.pedrovisk.proxmox.models.json.RootConfiguration;
 import com.pedrovisk.proxmox.models.proxmox.firewall.FirewallLogData;
 import com.pedrovisk.proxmox.models.proxmox.firewall.FirewallLogRoot;
 import com.pedrovisk.proxmox.repository.FirewallLogInMemoryRepository;
@@ -36,15 +38,18 @@ public class FirewallLogMonitorServiceTest {
         firewallLogRoot.setData(data);
         firewallLogRoot.setTotal(1);
 
-        FirewallLogInMemoryRepository firewallLogRepository = new FirewallLogInMemoryRepository();
+        var rootConfiguration = RootConfiguration.builder()
+                .nodes(List.of(NodeConfiguration.builder().id("100").build())).build();
 
+        FirewallLogInMemoryRepository firewallLogRepository = new FirewallLogInMemoryRepository();
         // Mock the getFirewallLog method to return the FirewallLogRoot object
-        Mockito.when(proxmoxApiMock.getFirewallLog(Mockito.anyInt())).thenReturn(firewallLogRoot);
+        Mockito.when(proxmoxApiMock.getFirewallLog(Mockito.any(), Mockito.anyInt())).thenReturn(firewallLogRoot);
 
         // Create an instance of FirewallLogMonitorService with the mocked ProxmoxApi
         FirewallLogsProperties firewallLogsProperties = new FirewallLogsProperties(true);
         FirewallLogMonitorService firewallLogMonitorService =
-                new FirewallLogMonitorService(proxmoxApiMock, firewallLogRepository, firewallLogsProperties);
+                new FirewallLogMonitorService(proxmoxApiMock, firewallLogRepository,
+                        firewallLogsProperties, rootConfiguration);
 
         // Call the getFirewallLogs method
         firewallLogMonitorService.getFirewallLogs();
@@ -65,14 +70,17 @@ public class FirewallLogMonitorServiceTest {
         firewallLogRoot.setTotal(4);
 
         FirewallLogInMemoryRepository firewallLogRepository = new FirewallLogInMemoryRepository();
+        var rootConfiguration = RootConfiguration.builder()
+                .nodes(List.of(NodeConfiguration.builder().id("100").build())).build();
 
         // Mock the getFirewallLog method to return the FirewallLogRoot object
-        Mockito.when(proxmoxApiMock.getFirewallLog(Mockito.anyInt())).thenReturn(firewallLogRoot);
+        Mockito.when(proxmoxApiMock.getFirewallLog(Mockito.any(), Mockito.anyInt())).thenReturn(firewallLogRoot);
 
         // Create an instance of FirewallLogMonitorService with the mocked ProxmoxApi
         FirewallLogsProperties firewallLogsProperties = new FirewallLogsProperties(true);
         FirewallLogMonitorService firewallLogMonitorService =
-                new FirewallLogMonitorService(proxmoxApiMock, firewallLogRepository, firewallLogsProperties);
+                new FirewallLogMonitorService(proxmoxApiMock, firewallLogRepository,
+                        firewallLogsProperties, rootConfiguration);
 
         // Call the getFirewallLogs method
         firewallLogMonitorService.getFirewallLogs();
@@ -93,15 +101,19 @@ public class FirewallLogMonitorServiceTest {
         firewallLogRoot.setData(data);
         firewallLogRoot.setTotal(4);
 
+        var rootConfiguration = RootConfiguration.builder()
+                .nodes(List.of(NodeConfiguration.builder().id("100").build())).build();
+
         FirewallLogInMemoryRepository firewallLogRepository = new FirewallLogInMemoryRepository();
 
         // Mock the getFirewallLog method to return the FirewallLogRoot object
-        Mockito.when(proxmoxApiMock.getFirewallLog(Mockito.anyInt())).thenReturn(firewallLogRoot);
+        Mockito.when(proxmoxApiMock.getFirewallLog(Mockito.any(), Mockito.anyInt())).thenReturn(firewallLogRoot);
 
         // Create an instance of FirewallLogMonitorService with the mocked ProxmoxApi
         FirewallLogsProperties firewallLogsProperties = new FirewallLogsProperties(false);
         FirewallLogMonitorService firewallLogMonitorService =
-                new FirewallLogMonitorService(proxmoxApiMock, firewallLogRepository, firewallLogsProperties);
+                new FirewallLogMonitorService(proxmoxApiMock, firewallLogRepository,
+                        firewallLogsProperties, rootConfiguration);
 
         // Call the getFirewallLogs method
         firewallLogMonitorService.getFirewallLogs();

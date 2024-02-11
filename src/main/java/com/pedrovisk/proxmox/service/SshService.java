@@ -3,6 +3,8 @@ package com.pedrovisk.proxmox.service;
 
 import com.google.common.base.CharMatcher;
 import com.pedrovisk.proxmox.configuration.SshProperties;
+import com.pedrovisk.proxmox.models.json.RootConfiguration;
+import com.pedrovisk.proxmox.models.json.SshConfigurationType;
 import com.pedrovisk.proxmox.telegram.TelegramApi;
 import com.pedrovisk.proxmox.utils.SshUtils;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,7 @@ public class SshService {
 
     private final SshProperties sshProperties;
     private final TelegramApi telegramApi;
+    private final RootConfiguration rootConfiguration;
 
 
     public void call() throws Exception {
@@ -48,6 +51,34 @@ public class SshService {
         var result = getFromSensorsCommand("Package id 0");
         if (result > cpuTemperatureThreshold ) {
             sendMessageToTelegram("CPU", result);
+        }
+
+        for (var nodes : rootConfiguration.nodes) {
+
+            for (var configurations : nodes.getSshConfiguration()) {
+                if (SshConfigurationType.CUSTOM.name().equals(configurations.getType())) {
+                    //TODO
+                }
+                if (SshConfigurationType.SENSORS.name().equals(configurations.getType())) {
+                    //TODO
+                }
+                if (SshConfigurationType.SMARTCTL.name().equals(configurations.getType())) {
+                    var grepFilter = configurations.getGrep();
+                    if (grepFilter == null){
+                        grepFilter = "Current Temperature";
+                        if (configurations.getDevice().startsWith("nvme")) {
+                            grepFilter = "Temperature:";
+                        }
+                    }
+                    var result1 = getFromSmartctlCommand(configurations.getDevice(), grepFilter);
+
+                    if (result1 > temperatureThreshold ) {
+                        sendMessageToTelegram(configurations.getName(), result);
+                    }
+                }
+            }
+
+
         }
 
 

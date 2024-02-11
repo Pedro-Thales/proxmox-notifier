@@ -18,11 +18,11 @@ public class Scheduler {
     @Autowired
     SshService sshService;
 
-    @Scheduled(initialDelay = 120000, fixedDelayString = "${update.frequency.node-status}")
+    @Scheduled(initialDelay = 3000, fixedDelayString = "${update.frequency.node-status}")
     public void statusScheduler() {
 
         //statusService.getNodeStatus();
-        //containersStatusService.getAllLxcStatus();
+        containersStatusService.getAllLxcStatus();
 
     }
 
@@ -36,7 +36,7 @@ public class Scheduler {
     @Scheduled(initialDelay = 5000, fixedDelayString = "${update.frequency.temperature}")
     public void getTemperatureScheduler() throws Exception {
 
-        sshService.call();
+        //sshService.call();
 
     }
 }

@@ -8,6 +8,7 @@ import com.pedrovisk.proxmox.models.proxmox.Root;
 import com.pedrovisk.proxmox.models.proxmox.firewall.FirewallLogRoot;
 import com.pedrovisk.proxmox.utils.MeasureRunTime;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -16,24 +17,24 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface ProxmoxApi {
 
 
-    @RequestMapping(method = RequestMethod.GET, value = "nodes/pxmx/status")
+    @RequestMapping(method = RequestMethod.GET, value = "nodes/{nodeName}/status")
     @MeasureRunTime
-    Root getNodeStatus();
+    Root getNodeStatus(@PathVariable String nodeName);
 
-    @RequestMapping(method = RequestMethod.GET, value = "nodes/pxmx/lxc")
+    @RequestMapping(method = RequestMethod.GET, value = "nodes/{nodeName}/lxc/{lxcId}/status/current")
     @MeasureRunTime
-    LxcStatusRoot getLxcContainersStatus();
+    LxcStatusRoot getLxcContainersStatus(@PathVariable String nodeName, @PathVariable String lxcId);
 
-    @RequestMapping(method = RequestMethod.GET, value = "nodes/pxmx/firewall/log")
+    @RequestMapping(method = RequestMethod.GET, value = "nodes/{nodeName}/firewall/log")
     @MeasureRunTime
-    FirewallLogRoot getFirewallLog(@RequestParam int start);
+    FirewallLogRoot getFirewallLog(@PathVariable String nodeName, @RequestParam int start);
 
-    @RequestMapping(method = RequestMethod.POST, value = "nodes/pxmx/status", consumes = "application/json")
+    @RequestMapping(method = RequestMethod.POST, value = "nodes/{nodeName}/status", consumes = "application/json")
     @MeasureRunTime
-    Root shutdownNode(CommandRequest commandRequest);
+    Root shutdownNode(@PathVariable String nodeName, CommandRequest commandRequest);
 
-    @RequestMapping(method = RequestMethod.POST, value = "nodes/pxmx/stopall")
+    @RequestMapping(method = RequestMethod.POST, value = "nodes/{nodeName}/stopall")
     @MeasureRunTime
-    Root stopEverything();
+    Root stopEverything(@PathVariable String nodeName);
 
 }

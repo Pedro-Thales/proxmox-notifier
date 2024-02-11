@@ -2,6 +2,7 @@ package com.pedrovisk.proxmox.service;
 
 import com.pedrovisk.proxmox.api.ProxmoxApi;
 import com.pedrovisk.proxmox.configuration.FirewallLogsProperties;
+import com.pedrovisk.proxmox.models.json.RootConfiguration;
 import com.pedrovisk.proxmox.models.proxmox.firewall.FirewallLogData;
 import com.pedrovisk.proxmox.models.proxmox.firewall.FirewallNodeLogLine;
 import com.pedrovisk.proxmox.models.proxmox.firewall.FirewallVmLogLine;
@@ -11,19 +12,18 @@ import com.pedrovisk.proxmox.utils.MeasureRunTime;
 import io.micrometer.core.annotation.Timed;
 import io.micrometer.observation.annotation.Observed;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class FirewallLogMonitorService {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(FirewallLogMonitorService.class);
 
     private final ProxmoxApi proxmoxApi;
     private final FirewallLogInMemoryRepository firewallLogRepository;
     private final FirewallLogsProperties firewallLogsProperties;
+    private final RootConfiguration rootConfiguration;
 
     public static int LOG_COUNTER = 0;
     private final static String POLICY_DROP = "DROP:";
@@ -34,7 +34,7 @@ public class FirewallLogMonitorService {
     @Timed(value = "timed-firewall-log")
     public void getFirewallLogs() {
 
-        var firewallLogRoot = proxmoxApi.getFirewallLog(LOG_COUNTER);
+        var firewallLogRoot = proxmoxApi.getFirewallLog(rootConfiguration.getNodes().getFirst().getId(), LOG_COUNTER);
 
         var data = firewallLogRoot.getData();
 
@@ -61,18 +61,18 @@ public class FirewallLogMonitorService {
 
                 if (lineParsed instanceof FirewallNodeLogLine nodeLogLine) {
                     if (Integer.parseInt(nodeLogLine.getLogTypeId()) < 7 && POLICY_DROP.equals(nodeLogLine.getPolicy())) {
-                        LOGGER.info("NODE LINE: " + lineParsed);
+                        log.info("NODE LINE: " + lineParsed);
                     }
                 }
 
                 if (lineParsed instanceof FirewallVmLogLine vmLogLine) {
                     if (Integer.parseInt(vmLogLine.getLogTypeId()) < 7 && POLICY_DROP.equals(vmLogLine.getPolicy())) {
-                        LOGGER.info("VM LINE: " + lineParsed);
+                        log.info("VM LINE: " + lineParsed);
                     }
                 }
 
 
-                LOGGER.info("REPO SIZE: " + firewallLogRepository.getFirewallLogLines().size());
+                log.info("REPO SIZE: " + firewallLogRepository.getFirewallLogLines().size());
 
                 //TODO evaluate to save data to a database to maybe notify by patterns:
                 // Some Ip is being dropped multiple times
@@ -80,9 +80,9 @@ public class FirewallLogMonitorService {
 
 
             } catch (Exception e) {
-                LOGGER.error("Exception while parsing line. -> " + line.getLineText());
-                LOGGER.error("Size. -> " + line.getLineText().split(" ").length);
-                LOGGER.error("Exception while parsing line: ",e);
+                log.error("Exception while parsing line. -> " + line.getLineText());
+                log.error("Size. -> " + line.getLineText().split(" ").length);
+                log.error("Exception while parsing line: ",e);
             }
 
             LOG_COUNTER = line.getLineNumber();

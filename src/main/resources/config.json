@@ -1,0 +1,66 @@
+{
+  "nodes": [
+    {
+      "id": "pxmx",
+      "name": "proxmox1",
+      "usedMemoryThreshold": 10,
+      "usedSwapThreshold": 10,
+      "usedRootFSThreshold": 10,
+      "containers": [
+        {
+          "id": 101,
+          "name": "lxcname1",
+          "usedMemoryThreshold": 10,
+          "usedSwapThreshold": 10,
+          "usedRootFSThreshold": 10
+        },
+        {
+          "id": 102,
+          "name": "lxcname2",
+          "usedMemoryThreshold": 10,
+          "usedSwapThreshold": 10,
+          "usedRootFSThreshold": 10
+        }
+      ],
+      "sshConfiguration": [
+        {
+          "name": "Temperature NVME 01",
+          "type": "SMARTCTL",
+          "device": "nvme0n1",
+          "threshold": 50
+        },
+        {
+          "name": "Temperature SDA",
+          "type": "SMARTCTL",
+          "device": "sda",
+          "grep": "Current Temperature",
+          "threshold": 40
+        },
+        {
+          "name": "Temperature SDB",
+          "type": "SMARTCTL",
+          "device": "sdb",
+          "threshold": 40
+        },
+        {
+          "name": "Temperature SDC",
+          "type": "SMARTCTL",
+          "device": "sdc",
+          "threshold": 40
+        },
+        {
+          "name": "Temperature SDD",
+          "type": "CUSTOM",
+          "command": "smartctl -l scttemp /dev/sdd | grep 'Current Temperature'",
+          "threshold": 40
+        },
+        {
+          "name": "CPU Temperature",
+          "type": "SENSORS",
+          "grep": "Package id 0",
+          "threshold": 50
+        }
+      ]
+    }
+  ]
+}
