@@ -1,0 +1,35 @@
+nodes:
+  -
+    id: pxmx # This is the id of the node in Proxmox
+    name: proxmox1 # This is just an identifier to be used when sending notifications, can be different from the proxmox name
+    usedMemoryThreshold: 10 # This threshold will be used to send alerts when the node reaches this used memory or higher
+    usedSwapThreshold: 10 # This threshold will be used to send alerts when the node reaches this used swap or higher
+    usedRootFSThreshold: 10 # This threshold will be used to send alerts when the node reaches this used root file system or higher
+    containers:
+      - id: 101 # This is the id of the lxc container in Proxmox
+        name: lxcname1 # This is just an identifier to be used when sending notifications, can be different from the proxmox name
+        memoryThreshold: 10 # This threshold will be used to send alerts when the container reaches this used memory or higher
+        swapThreshold: 10 # This threshold will be used to send alerts when the container reaches this used swap or higher
+        rootFSThreshold: 10 # This threshold will be used to send alerts when the container reaches this used root file system or higher
+      - id: 102 # This is the id of the lxc container in Proxmox
+        name: lxcname2 # This is just an identifier to be used when sending notifications, can be different from the proxmox name
+        memoryThreshold: 10
+        swapThreshold: 10
+        rootFSThreshold: 10
+    sshConfiguration:
+      - name: Temperature first hdd
+        type: CUSTOM
+        command: "smartctl -l scttemp /dev/sda | grep 'Current Temperature'"
+        threshold: 10
+        disabledContainers:
+          - 103
+          - 101
+      - name: CPU Temperature
+        type: SENSORS
+        grep: "Package id 0"
+        threshold: 10
+      - name: Temperature Sdb hd
+        type: SMARTCTL
+        device: sdb
+        grep: "Current Temperature"
+        threshold: 10

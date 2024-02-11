@@ -27,6 +27,10 @@ Spring knows implicitly to look for env_variables of the same name as property w
 
 #### As explained in the spring boot documentation https://docs.spring.io/spring-boot/docs/3.1.2/reference/html/features.html#features.external-config.typesafe-configuration-properties.relaxed-binding.environment-variables
 
+### Configure Telegram Bot
+### TODO: CREATE TUTORIAL BASED ON https://rieckpil.de/howto-send-telegram-bot-notifications-with-java/
+
+
 ---
 
 ## Build
