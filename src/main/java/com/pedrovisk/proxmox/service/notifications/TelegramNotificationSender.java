@@ -29,15 +29,16 @@ public class TelegramNotificationSender implements NotificationSender{
 
             var message = STR.
                     """
-                        \{notificationDTO.componentType()}: \{notificationDTO.componentId()} with free \{notificationDTO.valueType()} getting dangerous
+                        \{notificationDTO.componentType()}: \{notificationDTO.componentId()} with used \{notificationDTO.valueType()} getting dangerous
 
-                            Actual free: \{String.valueOf(notificationDTO.actualValue())}
+                            Actual used: \{String.valueOf(notificationDTO.actualValue())}
                             Threshold: \{notificationDTO.threshold()}
                         """;
 
             String escapedMessage = message
                     .replace(".", "\\.")
-                    .replace("Actual free:", "*Actual free:*")
+                    .replace("-", "\\-")
+                    .replace("Actual used:", "*Actual used:*")
                     .replace("Threshold:", "*Threshold:*");
 
             var response = telegramApi.sendMessageToBotChatDefault(escapedMessage);

@@ -9,7 +9,6 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 
 @Service
 @Slf4j
@@ -20,8 +19,8 @@ public class EmailNotificationSender implements NotificationSender{
 
     private final JavaMailSender emailSender;
 
-    public void sendEmailAsync(BigDecimal percentUsed) {
-        Runnable runnable = () -> sendEmail(percentUsed);
+    public void sendEmailAsync(NotificationDTO notificationDTO) {
+        Runnable runnable = () -> sendEmail(notificationDTO);
 
         Thread.ofVirtual()
                 .name("mailer-thread")
@@ -38,14 +37,23 @@ public class EmailNotificationSender implements NotificationSender{
     }
 
 
-    private void sendEmail(BigDecimal percentUsed) {
+    private void sendEmail(NotificationDTO notificationDTO) {
+
+        var messageText = STR.
+                """
+                        \{notificationDTO.componentType()}: \{notificationDTO.componentId()} with used \{notificationDTO.valueType()} getting dangerous
+
+                            Actual used: \{String.valueOf(notificationDTO.actualValue())}
+                            Threshold: \{notificationDTO.threshold()}
+                        """;
+
         long initTime = System.currentTimeMillis();
         log.info("Email sending started! ");
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("memory-usage@myserver.com");
         message.setTo("pedrottb01@gmail.com");
-        message.setSubject("High memory usage");
-        message.setText("Current memory usage is: " + percentUsed);
+        message.setSubject("High "+ notificationDTO.valueType() +" usage");
+        message.setText(messageText);
         log.info("Sending email! ");
         emailSender.send(message);
         log.info("Email sent! ");
@@ -55,6 +63,6 @@ public class EmailNotificationSender implements NotificationSender{
 
     @Override
     public void sendHighMemoryNotification(NotificationDTO notificationDTO) {
-        sendEmailAsync(notificationDTO.actualValue());
+        sendEmailAsync(notificationDTO);
     }
 }

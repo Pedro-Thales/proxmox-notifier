@@ -25,7 +25,6 @@ public class ContainersStatusService {
     @MeasureRunTime
     public void getAllLxcStatus() {
 
-        //TODO ADD CALL TO VMS 101 is not working
         for (var node : rootConfiguration.getNodes()) {
             for (var containerConfiguration : node.getContainers()) {
                 var status = proxmoxApi.getLxcContainersStatus(node.getId(), String.valueOf(containerConfiguration.getId()));
@@ -48,6 +47,27 @@ public class ContainersStatusService {
                 verifyThreshold(usedRootFsPercent,
                         BigDecimal.valueOf(containerConfiguration.usedRootFSThreshold), componentId, "RootFS");
 
+            }
+        }
+    }
+
+    @MeasureRunTime
+    public void getAllVmsStatus() {
+
+        for (var node : rootConfiguration.getNodes()) {
+            for (var containerConfiguration : node.getVms()) {
+                var status = proxmoxApi.getVmStatus(node.getId(), String.valueOf(containerConfiguration.getId()));
+                var lxc = status.getData();
+                if ("stopped".equalsIgnoreCase(lxc.getStatus())) {
+                    log.info("VM STOPPED");
+                    continue;
+                }
+
+                var usedMemoryPercent = getUsedPercent(lxc.getMem(), lxc.getMaxmem());
+
+                var componentId = lxc.getVmid() + " - " + containerConfiguration.name;
+                verifyThreshold(usedMemoryPercent,
+                        BigDecimal.valueOf(containerConfiguration.usedMemoryThreshold), componentId, "Memory");
             }
         }
     }

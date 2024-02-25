@@ -42,7 +42,7 @@ public class ProxmoxStatusService {
         log.info("Free memory: " + percentFree + "%");
 
         //validate if the available memory is less than the threshold defined, if it is so notify via the webhook or something else
-        notificationService.sendNotification(NotificationDTO.builder().build(), null);
+        //notificationService.sendNotification(NotificationDTO.builder().build(), null);
 
         return "Free memory: " + percentFree + "%";
     }

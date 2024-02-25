@@ -5,12 +5,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.Data;
 
-@lombok.Data
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @ToString
-public class Root{
-    public Data data;
+public class NodeStatusRoot {
+    public NodeStatus data;
 }
