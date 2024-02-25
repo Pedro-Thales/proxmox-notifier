@@ -11,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @ToString
-public class Data{
+public class NodeStatus {
     public Ksm ksm;
     public Swap swap;
     public int idle;

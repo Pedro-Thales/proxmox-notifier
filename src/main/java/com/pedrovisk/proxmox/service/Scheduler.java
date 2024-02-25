@@ -22,7 +22,8 @@ public class Scheduler {
     public void statusScheduler() {
 
         //statusService.getNodeStatus();
-        containersStatusService.getAllLxcStatus();
+        //containersStatusService.getAllLxcStatus();
+        containersStatusService.getAllVmsStatus();
 
     }
 
