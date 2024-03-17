@@ -5,6 +5,7 @@ import com.pedrovisk.proxmox.models.NotificationDTO;
 import com.pedrovisk.proxmox.telegram.TelegramApi;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
@@ -27,15 +28,7 @@ public class TelegramNotificationSender implements NotificationSender{
             //TODO send maybe in html to be more easy to convert to email too
             // https://stackoverflow.com/questions/38119481/send-bold-italic-text-on-telegram-bot-with-html
 
-            var message = STR.
-                    """
-                        \{notificationDTO.componentType()}: \{notificationDTO.componentId()} with used \{notificationDTO.valueType()} getting dangerous
-
-                            Actual used: \{String.valueOf(notificationDTO.actualValue())}
-                            Threshold: \{notificationDTO.threshold()}
-                        """;
-
-            String escapedMessage = message
+            String escapedMessage = notificationDTO.getMessage()
                     .replace(".", "\\.")
                     .replace("-", "\\-")
                     .replace("Actual used:", "*Actual used:*")
@@ -53,7 +46,16 @@ public class TelegramNotificationSender implements NotificationSender{
     }
 
     @Override
-    public void sendHighMemoryNotification(NotificationDTO notificationDTO) {
+    public void sendHighUsageNotification(NotificationDTO notificationDTO) {
+        if (StringUtils.isBlank(notificationDTO.getMessage())) {
+            String message = STR.
+                    """
+                        \{notificationDTO.getComponentType()}: \{notificationDTO.getComponentId()} with used \{notificationDTO.getValueType()} getting dangerous
+                            Actual used: \{String.valueOf(notificationDTO.getActualValue())}
+                            Threshold: \{notificationDTO.getThreshold()}
+                        """;
+            notificationDTO.setMessage(message);
+        }
         sendMessageToTelegram(notificationDTO);
     }
 }

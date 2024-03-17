@@ -8,15 +8,38 @@
       "usedRootFSThreshold": 10,
       "containers": [
         {
-          "id": 101,
-          "name": "lxcname1",
+          "id": 103,
+          "name": "LXC 103",
           "usedMemoryThreshold": 10,
           "usedSwapThreshold": 10,
           "usedRootFSThreshold": 10
         },
         {
-          "id": 102,
-          "name": "lxcname2",
+          "id": 200,
+          "name": "Lxc 200",
+          "usedMemoryThreshold": 10,
+          "usedSwapThreshold": 10,
+          "usedRootFSThreshold": 10
+        },
+        {
+          "id": 300,
+          "name": "Lxc 300",
+          "usedMemoryThreshold": 10,
+          "usedSwapThreshold": 10,
+          "usedRootFSThreshold": 10
+        }
+      ],
+      "vms": [
+        {
+          "id": 100,
+          "name": "Vm1",
+          "usedMemoryThreshold": 10,
+          "usedSwapThreshold": 10,
+          "usedRootFSThreshold": 10
+        },
+        {
+          "id": 101,
+          "name": "Vm2",
           "usedMemoryThreshold": 10,
           "usedSwapThreshold": 10,
           "usedRootFSThreshold": 10
