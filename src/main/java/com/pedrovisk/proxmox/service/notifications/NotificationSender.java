@@ -4,6 +4,6 @@ import com.pedrovisk.proxmox.models.NotificationDTO;
 
 public interface NotificationSender {
 
-    void sendHighMemoryNotification(NotificationDTO notificationDTO);
+    void sendHighUsageNotification(NotificationDTO notificationDTO);
 
 }

@@ -82,7 +82,7 @@ public class ContainersStatusService {
                 .threshold(memoryThreshold).componentId(componentId)
                 .valueType(valueType).componentType("LXC").build();
 
-        if (notificationDto.actualValue().compareTo(notificationDto.threshold()) > -1) {
+        if (notificationDto.getActualValue().compareTo(notificationDto.getThreshold()) > -1) {
             notificationSenderService.sendNotification(notificationDto, null);
         }
 

@@ -3,6 +3,7 @@ package com.pedrovisk.proxmox.service.notifications;
 import com.pedrovisk.proxmox.models.NotificationDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.mail.SimpleMailMessage;
@@ -39,21 +40,13 @@ public class EmailNotificationSender implements NotificationSender{
 
     private void sendEmail(NotificationDTO notificationDTO) {
 
-        var messageText = STR.
-                """
-                        \{notificationDTO.componentType()}: \{notificationDTO.componentId()} with used \{notificationDTO.valueType()} getting dangerous
-
-                            Actual used: \{String.valueOf(notificationDTO.actualValue())}
-                            Threshold: \{notificationDTO.threshold()}
-                        """;
-
         long initTime = System.currentTimeMillis();
         log.info("Email sending started! ");
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("memory-usage@myserver.com");
         message.setTo("pedrottb01@gmail.com");
-        message.setSubject("High "+ notificationDTO.valueType() +" usage");
-        message.setText(messageText);
+        message.setSubject("High "+ notificationDTO.getValueType() +" usage");
+        message.setText(notificationDTO.getMessage());
         log.info("Sending email! ");
         emailSender.send(message);
         log.info("Email sent! ");
@@ -62,7 +55,17 @@ public class EmailNotificationSender implements NotificationSender{
     }
 
     @Override
-    public void sendHighMemoryNotification(NotificationDTO notificationDTO) {
+    public void sendHighUsageNotification(NotificationDTO notificationDTO) {
+        if (StringUtils.isBlank(notificationDTO.getMessage())) {
+            String message = STR.
+                    """
+                        \{notificationDTO.getComponentType()}: \{notificationDTO.getComponentId()} with used \{notificationDTO.getValueType()} getting dangerous
+                            Actual used: \{String.valueOf(notificationDTO.getActualValue())}
+                            Threshold: \{notificationDTO.getThreshold()}
+                        """;
+            notificationDTO.setMessage(message);
+        }
+
         sendEmailAsync(notificationDTO);
     }
 }
