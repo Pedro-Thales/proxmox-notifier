@@ -56,6 +56,16 @@ public class TelegramNotificationSender implements NotificationSender{
                         """;
             notificationDTO.setMessage(message);
         }
-        sendMessageToTelegram(notificationDTO);
+        sendMessageToTelegramAsync(notificationDTO);
     }
+
+    public void sendMessageToTelegramAsync(NotificationDTO notificationDTO) {
+        Runnable runnable = () -> sendMessageToTelegram(notificationDTO);
+
+        Thread.ofVirtual()
+                .name("mailer-thread")
+                .start(runnable);
+
+    }
+
 }

@@ -12,7 +12,6 @@ import java.util.Map;
 @Repository
 public class NotificationSentReminderInMemoryRepository {
 
-    private static final Map<String, Date> usersNotPlaying = new HashMap<>();
 
     //ComponentID, Sent Date
     private static final Map<String, Instant> notifationsReminder = new HashMap<>();
