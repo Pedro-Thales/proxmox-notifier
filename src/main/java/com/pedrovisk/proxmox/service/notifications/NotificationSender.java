@@ -1,9 +1,9 @@
 package com.pedrovisk.proxmox.service.notifications;
 
-import com.pedrovisk.proxmox.models.NotificationDTO;
+import com.pedrovisk.proxmox.models.notification.NotificationBase;
 
 public interface NotificationSender {
 
-    void sendHighUsageNotification(NotificationDTO notificationDTO);
+    void sendNotification(NotificationBase notificationBase);
 
 }

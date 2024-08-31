@@ -1,6 +1,5 @@
 package com.pedrovisk.proxmox.models.proxmox;
 
-import lombok.Data;
 import lombok.*;
 
 @Data
@@ -18,9 +17,9 @@ public class ContainerStatus {
     String vmid;
     long disk;
     double netin;
-    int cpu;
-    double mem;
+    double cpu;
     double maxdisk;
+    double mem;
     double diskread;
     double netout;
     double diskwrite;

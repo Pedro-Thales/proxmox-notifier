@@ -145,7 +145,7 @@ public class SshService {
     private static Integer extractDigits(String text) {
         CharMatcher ASCII_DIGITS = CharMatcher.inRange('0', '9').precomputed();
         LOGGER.debug(STR."Extracting numbers from: \{text}");
-        Integer resultInt = null;
+        int resultInt;
         try {
             resultInt = Integer.parseInt(ASCII_DIGITS.retainFrom(text));
         } catch (Exception e) {

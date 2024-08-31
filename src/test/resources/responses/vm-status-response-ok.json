@@ -1,0 +1,92 @@
+{
+  "data": {
+    "freemem": 6020009984,
+    "ballooninfo": {
+      "max_mem": 8594128896,
+      "major_page_faults": 4373,
+      "actual": 8594128896,
+      "total_mem": 8326545408,
+      "last_update": 1724791265,
+      "minor_page_faults": 932940,
+      "mem_swapped_out": 0,
+      "free_mem": 6020009984,
+      "mem_swapped_in": 0
+    },
+    "diskwrite": 638291968,
+    "name": "vm1",
+    "running-machine": "pc-i440fx-9.0+pve0",
+    "uptime": 34791,
+    "blockstat": {
+      "scsi0": {
+        "failed_rd_operations": 0,
+        "unmap_bytes": 0,
+        "failed_flush_operations": 0,
+        "account_invalid": true,
+        "flush_total_time_ns": 7810898557,
+        "invalid_wr_operations": 0,
+        "invalid_unmap_operations": 0,
+        "wr_highest_offset": 105368256512,
+        "invalid_flush_operations": 0,
+        "wr_total_time_ns": 31767312898,
+        "unmap_total_time_ns": 0,
+        "wr_merged": 0,
+        "zone_append_bytes": 0,
+        "rd_bytes": 871993856,
+        "invalid_zone_append_operations": 0,
+        "rd_merged": 0,
+        "rd_total_time_ns": 24605915313,
+        "failed_unmap_operations": 0,
+        "failed_wr_operations": 0,
+        "wr_bytes": 638291968,
+        "unmap_merged": 0,
+        "flush_operations": 14856,
+        "zone_append_merged": 0,
+        "invalid_rd_operations": 0,
+        "idle_time_ns": 2696394319,
+        "rd_operations": 30416,
+        "timed_stats": [],
+        "account_failed": true,
+        "zone_append_total_time_ns": 0,
+        "unmap_operations": 0,
+        "failed_zone_append_operations": 0,
+        "wr_operations": 48440,
+        "zone_append_operations": 0
+      }
+    },
+    "vmid": 101,
+    "maxdisk": 214748364800,
+    "ha": {
+      "managed": 0
+    },
+    "cpu": 0.0025988000747474,
+    "maxmem": 8594128896,
+    "netout": 54393011,
+    "balloon": 8594128896,
+    "nics": {
+      "tap101i0": {
+        "netin": 54661976,
+        "netout": 54393011
+      }
+    },
+    "disk": 0,
+    "running-qemu": "9.0.2",
+    "qmpstatus": "running",
+    "cpus": 12,
+    "mem": 2306535424,
+    "diskread": 871993856,
+    "pid": 3162,
+    "netin": 54661976,
+    "status": "running",
+    "proxmox-support": {
+      "pbs-dirty-bitmap": true,
+      "pbs-masterkey": true,
+      "pbs-library-version": "1.4.1 (UNKNOWN)",
+      "query-bitmap-info": true,
+      "pbs-dirty-bitmap-savevm": true,
+      "backup-fleecing": true,
+      "backup-max-workers": true,
+      "pbs-dirty-bitmap-migration": true
+    },
+    "agent": 1
+  }
+}

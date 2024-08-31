@@ -1,9 +1,8 @@
 package com.pedrovisk.proxmox.service.notifications;
 
-import com.pedrovisk.proxmox.models.NotificationDTO;
+import com.pedrovisk.proxmox.models.notification.NotificationBase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.mail.SimpleMailMessage;
@@ -16,16 +15,14 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Qualifier("emailNotification")
 @ConditionalOnProperty(name = "notification.email.enabled", havingValue = "true")
-public class EmailNotificationSender implements NotificationSender{
+public class EmailNotificationSender implements NotificationSender {
 
     private final JavaMailSender emailSender;
 
-    public void sendEmailAsync(NotificationDTO notificationDTO) {
-        Runnable runnable = () -> sendEmail(notificationDTO);
+    public void sendEmailAsync(NotificationBase notificationBase) {
+        Runnable runnable = () -> sendEmail(notificationBase);
 
-        Thread.ofVirtual()
-                .name("mailer-thread")
-                .start(runnable);
+        Thread.ofVirtual().name("mailer-thread").start(runnable);
 
     }
 
@@ -38,15 +35,15 @@ public class EmailNotificationSender implements NotificationSender{
     }
 
 
-    private void sendEmail(NotificationDTO notificationDTO) {
+    private void sendEmail(NotificationBase notificationBase) {
 
         long initTime = System.currentTimeMillis();
         log.info("Email sending started! ");
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("memory-usage@myserver.com");
         message.setTo("pedrottb01@gmail.com");
-        message.setSubject("High "+ notificationDTO.getValueType() +" usage");
-        message.setText(notificationDTO.getMessage());
+        message.setSubject("High " + notificationBase.getValueType() + " usage");
+        message.setText(notificationBase.getMessage());
         log.info("Sending email! ");
         emailSender.send(message);
         log.info("Email sent! ");
@@ -55,17 +52,7 @@ public class EmailNotificationSender implements NotificationSender{
     }
 
     @Override
-    public void sendHighUsageNotification(NotificationDTO notificationDTO) {
-        if (StringUtils.isBlank(notificationDTO.getMessage())) {
-            String message = STR.
-                    """
-                        \{notificationDTO.getComponentType()}: \{notificationDTO.getComponentId()} with used \{notificationDTO.getValueType()} getting dangerous
-                            Actual used: \{String.valueOf(notificationDTO.getActualValue())}
-                            Threshold: \{notificationDTO.getThreshold()}
-                        """;
-            notificationDTO.setMessage(message);
-        }
-
-        sendEmailAsync(notificationDTO);
+    public void sendNotification(NotificationBase notificationBase) {
+        sendEmailAsync(notificationBase);
     }
 }

@@ -16,6 +16,8 @@ public class ContainerConfiguration {
     public Integer id;
     @JsonProperty("name")
     public String name;
+    @JsonProperty("usedCpuThreshold")
+    public Integer usedCpuThreshold;
     @JsonProperty("usedMemoryThreshold")
     public Integer usedMemoryThreshold;
     @JsonProperty("usedSwapThreshold")

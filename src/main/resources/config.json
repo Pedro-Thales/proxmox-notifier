@@ -3,6 +3,7 @@
     {
       "id": "pxmx",
       "name": "proxmox1",
+      "usedCpuThreshold": 50,
       "usedMemoryThreshold": 10,
       "usedSwapThreshold": 10,
       "usedRootFSThreshold": 10,
@@ -10,6 +11,7 @@
         {
           "id": 103,
           "name": "LXC 103",
+          "usedCpuThreshold": 50,
           "usedMemoryThreshold": 10,
           "usedSwapThreshold": 10,
           "usedRootFSThreshold": 10
@@ -17,6 +19,7 @@
         {
           "id": 200,
           "name": "Lxc 200",
+          "usedCpuThreshold": 50,
           "usedMemoryThreshold": 10,
           "usedSwapThreshold": 10,
           "usedRootFSThreshold": 10
@@ -24,6 +27,7 @@
         {
           "id": 300,
           "name": "Lxc 300",
+          "usedCpuThreshold": 50,
           "usedMemoryThreshold": 10,
           "usedSwapThreshold": 10,
           "usedRootFSThreshold": 10
@@ -33,16 +37,20 @@
         {
           "id": 100,
           "name": "Vm1",
+          "usedCpuThreshold": 50,
           "usedMemoryThreshold": 10,
           "usedSwapThreshold": 10,
-          "usedRootFSThreshold": 10
+          "usedDiskThreshold": 10,
+          "hasAgent": true
         },
         {
           "id": 101,
           "name": "Vm2",
+          "usedCpuThreshold": 50,
           "usedMemoryThreshold": 10,
           "usedSwapThreshold": 10,
-          "usedRootFSThreshold": 10
+          "usedDiskThreshold": 10,
+          "hasAgent": true
         }
       ],
       "sshConfiguration": [

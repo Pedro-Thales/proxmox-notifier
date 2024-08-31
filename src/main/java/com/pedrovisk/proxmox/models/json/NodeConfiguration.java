@@ -1,7 +1,6 @@
 package com.pedrovisk.proxmox.models.json;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,6 +18,8 @@ public class NodeConfiguration {
     public String id;
     @JsonProperty("name")
     public String name;
+    @JsonProperty("usedCpuThreshold")
+    public Integer usedCpuThreshold;
     @JsonProperty("usedMemoryThreshold")
     public Integer usedMemoryThreshold;
     @JsonProperty("usedSwapThreshold")
@@ -26,12 +27,9 @@ public class NodeConfiguration {
     @JsonProperty("usedRootFSThreshold")
     public Integer usedRootFSThreshold;
     @JsonProperty("containers")
-    @Valid
     public List<ContainerConfiguration> containers;
     @JsonProperty("vms")
-    @Valid
     public List<VmsConfiguration> vms;
     @JsonProperty("sshConfiguration")
-    @Valid
     public List<SshConfiguration> sshConfiguration;
 }

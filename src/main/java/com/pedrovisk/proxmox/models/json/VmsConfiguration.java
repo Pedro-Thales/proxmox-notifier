@@ -16,10 +16,14 @@ public class VmsConfiguration {
     public Integer id;
     @JsonProperty("name")
     public String name;
+    @JsonProperty("usedCpuThreshold")
+    public Integer usedCpuThreshold;
     @JsonProperty("usedMemoryThreshold")
     public Integer usedMemoryThreshold;
     @JsonProperty("usedSwapThreshold")
     public Integer usedSwapThreshold;
-    @JsonProperty("usedRootFSThreshold")
-    public Integer usedRootFSThreshold;
+    @JsonProperty("usedDiskThreshold")
+    public Integer usedDiskThreshold;
+    @JsonProperty("hasAgent")
+    public boolean hasAgent;
 }

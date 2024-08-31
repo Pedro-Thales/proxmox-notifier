@@ -1,9 +1,7 @@
 package com.pedrovisk.proxmox.telegram;
 
-import org.telegram.abilitybots.api.db.DBContext;
-import org.telegram.abilitybots.api.sender.SilentSender;
-import org.telegram.telegrambots.Constants;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.abilitybots.api.db.DBContext;
+import org.telegram.telegrambots.abilitybots.api.sender.SilentSender;
 
 import java.util.Map;
 
@@ -21,10 +19,7 @@ public class TelegramResponseHandler {
     }
 
     public void replyToStart(long chatId) {
-        SendMessage message = new SendMessage();
-        message.setChatId(chatId);
-        message.setText(START_TEXT);
-        sender.execute(message);
+        sender.send(START_TEXT, chatId);
         chatStates.put(chatId, TelegramUserState.AWAITING_NAME);
     }
 

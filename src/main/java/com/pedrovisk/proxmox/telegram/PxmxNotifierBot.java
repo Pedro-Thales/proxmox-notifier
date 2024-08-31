@@ -2,12 +2,12 @@ package com.pedrovisk.proxmox.telegram;
 
 import com.pedrovisk.proxmox.configuration.TelegramProperties;
 import org.springframework.stereotype.Component;
-import org.telegram.abilitybots.api.bot.AbilityBot;
-import org.telegram.abilitybots.api.objects.Ability;
+import org.telegram.telegrambots.abilitybots.api.bot.AbilityBot;
+import org.telegram.telegrambots.abilitybots.api.objects.Ability;
+import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
 
-import static org.telegram.abilitybots.api.db.MapDBContext.onlineInstance;
-import static org.telegram.abilitybots.api.objects.Locality.USER;
-import static org.telegram.abilitybots.api.objects.Privacy.PUBLIC;
+import static org.telegram.telegrambots.abilitybots.api.objects.Locality.USER;
+import static org.telegram.telegrambots.abilitybots.api.objects.Privacy.PUBLIC;
 
 @Component
 public class PxmxNotifierBot extends AbilityBot {
@@ -22,7 +22,7 @@ public class PxmxNotifierBot extends AbilityBot {
     public static final String START_DESCRIPTION = "Starts the bot";
 
     public PxmxNotifierBot(TelegramProperties properties) {
-        super(properties.token(), "PxmxNotifierBot", onlineInstance(properties.dbPath()));
+        super(new OkHttpTelegramClient(properties.token()), "PxmxNotifierBot");
         this.properties = properties;
         this.responseHandler = new TelegramResponseHandler(silent, db);
     }
