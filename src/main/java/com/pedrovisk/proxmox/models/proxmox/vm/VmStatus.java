@@ -1,10 +1,11 @@
-package com.pedrovisk.proxmox.models.proxmox;
+package com.pedrovisk.proxmox.models.proxmox.vm;
 
-import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.pedrovisk.proxmox.models.proxmox.Ballooninfo;
+import com.pedrovisk.proxmox.models.proxmox.BlockStat;
+import com.pedrovisk.proxmox.models.proxmox.Ha;
 import lombok.*;
-import lombok.Data;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -17,7 +18,7 @@ import java.util.Map;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class VmStatus {
     public int vmid;
-    public int cpu;
+    public double cpu;
     public int disk;
     public long mem;
     @JsonProperty("running-qemu")
@@ -28,7 +29,7 @@ public class VmStatus {
     public Ballooninfo ballooninfo;
     public VmNics nics;
     public int cpus;
-    @JsonAnySetter
+    @JsonProperty("blockstat")
     Map<String, BlockStat> blockstat = new LinkedHashMap<>();
     public String qmpstatus;
     public long netin;

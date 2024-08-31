@@ -1,7 +1,7 @@
-package com.pedrovisk.proxmox.models.proxmox;
+package com.pedrovisk.proxmox.models.proxmox.vm;
 
+import com.pedrovisk.proxmox.models.proxmox.Tap101i0;
 import lombok.*;
-import lombok.Data;
 
 @Data
 @NoArgsConstructor

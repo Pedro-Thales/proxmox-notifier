@@ -1,11 +1,10 @@
 package com.pedrovisk.proxmox.service.notifications;
 
 import com.pedrovisk.proxmox.configuration.TelegramProperties;
-import com.pedrovisk.proxmox.models.NotificationDTO;
+import com.pedrovisk.proxmox.models.notification.NotificationBase;
 import com.pedrovisk.proxmox.telegram.TelegramApi;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
@@ -23,12 +22,12 @@ public class TelegramNotificationSender implements NotificationSender{
     private final TelegramApi telegramApi;
     private final TelegramProperties telegramProperties;
 
-    public void sendMessageToTelegram(NotificationDTO notificationDTO) {
+    public void sendMessageToTelegram(NotificationBase notificationBase) {
         try {
             //TODO send maybe in html to be more easy to convert to email too
             // https://stackoverflow.com/questions/38119481/send-bold-italic-text-on-telegram-bot-with-html
 
-            String escapedMessage = notificationDTO.getMessage()
+            String escapedMessage = notificationBase.getMessage()
                     .replace(".", "\\.")
                     .replace("-", "\\-")
                     .replace("Actual used:", "*Actual used:*")
@@ -46,21 +45,12 @@ public class TelegramNotificationSender implements NotificationSender{
     }
 
     @Override
-    public void sendHighUsageNotification(NotificationDTO notificationDTO) {
-        if (StringUtils.isBlank(notificationDTO.getMessage())) {
-            String message = STR.
-                    """
-                        \{notificationDTO.getComponentType()}: \{notificationDTO.getComponentId()} with used \{notificationDTO.getValueType()} getting dangerous
-                            Actual used: \{String.valueOf(notificationDTO.getActualValue())}
-                            Threshold: \{notificationDTO.getThreshold()}
-                        """;
-            notificationDTO.setMessage(message);
-        }
-        sendMessageToTelegramAsync(notificationDTO);
+    public void sendNotification(NotificationBase notificationBase) {
+        sendMessageToTelegramAsync(notificationBase);
     }
 
-    public void sendMessageToTelegramAsync(NotificationDTO notificationDTO) {
-        Runnable runnable = () -> sendMessageToTelegram(notificationDTO);
+    public void sendMessageToTelegramAsync(NotificationBase notificationBase) {
+        Runnable runnable = () -> sendMessageToTelegram(notificationBase);
 
         Thread.ofVirtual()
                 .name("mailer-thread")

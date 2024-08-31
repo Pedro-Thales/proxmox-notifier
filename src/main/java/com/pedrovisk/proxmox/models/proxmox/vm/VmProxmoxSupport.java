@@ -1,8 +1,7 @@
-package com.pedrovisk.proxmox.models.proxmox;
+package com.pedrovisk.proxmox.models.proxmox.vm;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
-import lombok.Data;
 
 @Data
 @NoArgsConstructor

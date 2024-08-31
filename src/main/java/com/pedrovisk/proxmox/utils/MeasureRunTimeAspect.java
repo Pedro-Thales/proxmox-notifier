@@ -18,13 +18,19 @@ public class MeasureRunTimeAspect {
 
     @Around("@annotation(MeasureRunTime)")
     public Object logExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable {
-        long initTime = System.currentTimeMillis();
-        Object proceed = joinPoint.proceed();
-        long executionTime = System.currentTimeMillis() - initTime;
-        LOGGER.info("============================================================================================================");
-        LOGGER.info(joinPoint.toShortString() + " executed in " + executionTime + "ms");
-        LOGGER.info("============================================================================================================");
-        return proceed;
+
+        if (LOGGER.isDebugEnabled()) {
+            long initTime = System.currentTimeMillis();
+            Object proceed = joinPoint.proceed();
+            long executionTime = System.currentTimeMillis() - initTime;
+            LOGGER.debug("============================================================================================================");
+            LOGGER.debug("{} executed in {}ms", joinPoint.toShortString(), executionTime);
+            return proceed;
+        }
+
+        return joinPoint.proceed();
     }
+
+    //TODO maybe create new annotation to monitor execution time and notify if execution is bigger than some threshold
 
 }

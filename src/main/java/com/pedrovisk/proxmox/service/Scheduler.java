@@ -1,29 +1,26 @@
 package com.pedrovisk.proxmox.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class Scheduler {
 
     //TODO do the error handling
-
-    @Autowired
-    ProxmoxStatusService statusService;
-    @Autowired
-    ContainersStatusService containersStatusService;
-    @Autowired
-    FirewallLogMonitorService firewallLogMonitorService;
-    @Autowired
-    SshService sshService;
+    private final ProxmoxStatusService statusService;
+    private final ContainersStatusService containersStatusService;
+    private final VmStatusService vmStatusService;
+    private final FirewallLogMonitorService firewallLogMonitorService;
+    private final SshService sshService;
 
     @Scheduled(initialDelay = 3000, fixedDelayString = "${update.frequency.node-status}")
     public void statusScheduler() {
 
         //statusService.getNodeStatus();
         //containersStatusService.getAllLxcStatus();
-        containersStatusService.getAllVmsStatus();
+        vmStatusService.getAllVmsStatus();
 
     }
 

@@ -3,9 +3,9 @@ package com.pedrovisk.proxmox.service;
 
 import com.pedrovisk.proxmox.api.ProxmoxApi;
 import com.pedrovisk.proxmox.configuration.ThresholdProperties;
-import com.pedrovisk.proxmox.models.NotificationDTO;
 import com.pedrovisk.proxmox.models.json.NodeConfiguration;
 import com.pedrovisk.proxmox.models.json.RootConfiguration;
+import com.pedrovisk.proxmox.models.notification.NotificationThreshold;
 import com.pedrovisk.proxmox.service.notifications.NotificationSenderService;
 import com.pedrovisk.proxmox.utils.MeasureRunTime;
 import io.micrometer.observation.annotation.Observed;
@@ -34,11 +34,9 @@ public class ProxmoxStatusService {
 
         var memory = status.getData().getMemory();
         log.info("memory = " + memory);
-        var percentUsed = memory.getUsed().divide(memory.getTotal(), 4, RoundingMode.HALF_UP)
-                .multiply(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_UP);
+        var percentUsed = memory.getUsed().divide(memory.getTotal(), 4, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_UP);
         log.info("Used memory: " + percentUsed + "%");
-        var percentFree = memory.getFree().divide(memory.getTotal(), 4, RoundingMode.HALF_UP)
-                .multiply(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_UP);
+        var percentFree = memory.getFree().divide(memory.getTotal(), 4, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_UP);
         log.info("Free memory: " + percentFree + "%");
 
         //validate if the available memory is less than the threshold defined, if it is so notify via the webhook or something else
@@ -90,19 +88,15 @@ public class ProxmoxStatusService {
             var status = proxmoxApi.getNodeStatus(node.getId());
 
             var memory = status.getData().getMemory();
-            var freeMemoryPercent = memory.getFree().divide(memory.getTotal(), 4, RoundingMode.HALF_UP)
-                    .multiply(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_UP);
+            var freeMemoryPercent = memory.getFree().divide(memory.getTotal(), 4, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_UP);
 
-            var usedMemoryPercent = memory.getUsed().divide(memory.getTotal(), 4, RoundingMode.HALF_UP)
-                    .multiply(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_UP);
+            var usedMemoryPercent = memory.getUsed().divide(memory.getTotal(), 4, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_UP);
 
             var swap = status.getData().getSwap();
-            var freeSwapPercent = BigDecimal.valueOf((swap.getFree() / swap.getTotal()) * 100)
-                    .setScale(2, RoundingMode.HALF_UP);
+            var freeSwapPercent = BigDecimal.valueOf((swap.getFree() / swap.getTotal()) * 100).setScale(2, RoundingMode.HALF_UP);
 
             var rootFs = status.getData().getRootfs();
-            var freeRootFsPercent = BigDecimal.valueOf((rootFs.getFree() / rootFs.getTotal()) * 100)
-                    .setScale(2, RoundingMode.HALF_UP);
+            var freeRootFsPercent = BigDecimal.valueOf((rootFs.getFree() / rootFs.getTotal()) * 100).setScale(2, RoundingMode.HALF_UP);
 
             // Maybe include in this map a value of delay time to get this metric
             if (freeMemoryPercent.compareTo(BigDecimal.valueOf(thresholdProperties.freeMemory())) < 1) {
@@ -113,7 +107,7 @@ public class ProxmoxStatusService {
                 log.info(STR.
                         "Free memory getting dangerous. Actual free: \{freeMemoryPercent} Threshold: \{thresholdProperties.freeMemory()}");
 
-                notificationService.sendNotification(NotificationDTO.builder().build(), null);
+                notificationService.sendNotification(NotificationThreshold.builder().build());
 
             }
 
@@ -133,7 +127,6 @@ public class ProxmoxStatusService {
 
 
         }
-
 
 
     }

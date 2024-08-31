@@ -1,0 +1,29 @@
+{
+  "data": {
+    "result": [
+      {
+        "type": "ext4",
+        "mountpoint": "/",
+        "disk": [
+          {
+            "pci-controller": {
+              "domain": 0,
+              "bus": 1,
+              "function": 0,
+              "slot": 1
+            },
+            "serial": "0QEMU_QEMU_HARDDISK_drive-scsi0",
+            "bus-type": "scsi",
+            "target": 0,
+            "bus": 0,
+            "unit": 0,
+            "dev": "/dev/sda1"
+          }
+        ],
+        "used-bytes": 63515488256,
+        "total-bytes": 199065485312,
+        "name": "sda1"
+      }
+    ]
+  }
+}
