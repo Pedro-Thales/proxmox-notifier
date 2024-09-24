@@ -4,18 +4,19 @@ package com.pedrovisk.proxmox.service;
 import com.google.common.base.CharMatcher;
 import com.pedrovisk.proxmox.configuration.SshProperties;
 import com.pedrovisk.proxmox.models.json.RootConfiguration;
+import com.pedrovisk.proxmox.models.json.SshConfiguration;
 import com.pedrovisk.proxmox.models.json.SshConfigurationType;
+import com.pedrovisk.proxmox.models.notification.NotificationTemperature;
+import com.pedrovisk.proxmox.service.notifications.NotificationSenderService;
 import com.pedrovisk.proxmox.telegram.TelegramApi;
 import com.pedrovisk.proxmox.utils.SshUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.util.Map;
+import java.math.BigDecimal;
 
 @Service
 @Slf4j
@@ -27,94 +28,65 @@ public class SshService {
     private final SshProperties sshProperties;
     private final TelegramApi telegramApi;
     private final RootConfiguration rootConfiguration;
+    private final NotificationSenderService notificationSenderService;
 
 
     public void call() throws Exception {
 
-        int temperatureThreshold = 50;
-        int cpuTemperatureThreshold = 50;
-
-        var hddMap = Map.of("sda", "Current Temperature",
-                        "sdb", "Current Temperature",
-                        "sdc", "Current Temperature",
-                        "sdd", "Current Temperature",
-                        "nvme0n1", "Temperature:");
-
-        for (var entries : hddMap.entrySet()) {
-            var result = getFromSmartctlCommand(entries.getKey(), entries.getValue());
-
-            if (result > temperatureThreshold ) {
-                sendMessageToTelegram(entries.getKey(), result);
-            }
-        }
-
-        var result = getFromSensorsCommand("Package id 0");
-        if (result > cpuTemperatureThreshold ) {
-            sendMessageToTelegram("CPU", result);
-        }
-
         for (var nodes : rootConfiguration.nodes) {
-
-            for (var configurations : nodes.getSshConfiguration()) {
-                if (SshConfigurationType.CUSTOM.name().equals(configurations.getType())) {
-                    //TODO
+            for (var sshConfiguration : nodes.getSshConfiguration()) {
+                if (SshConfigurationType.CUSTOM.name().equals(sshConfiguration.getType())) {
+                    var result = getFromCustomCommand(sshConfiguration.getCommand());
+                    verifyThresholdAndSendMessage(sshConfiguration, result);
                 }
-                if (SshConfigurationType.SENSORS.name().equals(configurations.getType())) {
-                    //TODO
+                if (SshConfigurationType.SENSORS.name().equals(sshConfiguration.getType())) {
+                    var result = getFromSensorsCommand(sshConfiguration.getGrep());
+                    verifyThresholdAndSendMessage(sshConfiguration, result);
                 }
-                if (SshConfigurationType.SMARTCTL.name().equals(configurations.getType())) {
-                    var grepFilter = configurations.getGrep();
-                    if (grepFilter == null){
-                        grepFilter = "Current Temperature";
-                        if (configurations.getDevice().startsWith("nvme")) {
-                            grepFilter = "Temperature:";
-                        }
-                    }
-                    var result1 = getFromSmartctlCommand(configurations.getDevice(), grepFilter);
-
-                    if (result1 > temperatureThreshold ) {
-                        sendMessageToTelegram(configurations.getName(), result);
-                    }
+                if (SshConfigurationType.SMARTCTL.name().equals(sshConfiguration.getType())) {
+                    var result = getFromSmartctlCommand(sshConfiguration);
+                    verifyThresholdAndSendMessage(sshConfiguration, result);
                 }
             }
-
-
-        }
-
-
-    }
-
-    public void sendMessageToTelegram(String device, Integer temperature) {
-        try {
-
-            var message = STR.
-                    """
-                        *Temperature Alert:*
-                        Device \{device}: *\{temperature}*
-                    """;
-
-            LOGGER.info(message);
-
-            String escapedMessage = message.replace(".", "\\.");
-
-            var response = telegramApi.sendMessageToBotChatDefault(escapedMessage);
-            if (response.getStatusCode() != HttpStatus.OK) {
-                LOGGER.error("Error while sending message to telegram! Response: {} ", response);
-                throw new TelegramApiException("Status was not OK");
-            }
-        } catch (Exception e) {
-            LOGGER.error("Not able to sent message to telegram, check logs to see more information! ", e);
         }
 
     }
 
-    private Integer getFromSmartctlCommand(String deviceId, String grepFilter) throws Exception {
+    private void verifyThresholdAndSendMessage(SshConfiguration sshConfiguration, Integer result) {
+        if (result > sshConfiguration.getThreshold()) {
+            sendNotification(sshConfiguration, result);
+        }
+    }
+
+    public void sendNotification(SshConfiguration sshConfiguration, Integer actualValue) {
+        var notification = NotificationTemperature.builder().actualValue(BigDecimal.valueOf(actualValue))
+                .threshold(sshConfiguration.getThreshold()).valueType("temperature")
+                .componentId(sshConfiguration.getName()).build();
+
+        notificationSenderService.sendNotification(notification);
+    }
+
+    private Integer getFromSmartctlCommand(SshConfiguration sshConfiguration) throws Exception {
+
+        var grepFilter = sshConfiguration.getGrep();
+        if (grepFilter == null) {
+            grepFilter = "Current Temperature";
+        }
+
+        var deviceId = sshConfiguration.getDevice();
+
         String command = STR."smartctl -l scttemp /dev/\{deviceId} | grep '\{grepFilter}'";
 
         if (deviceId.startsWith("nvme")) {
+            grepFilter = "Temperature:";
             command = STR."smartctl -a /dev/\{deviceId} | grep '\{grepFilter}'";
         }
 
+        var result = executeSshCommand(command);
+        return extractDigits(result);
+    }
+
+    private Integer getFromCustomCommand(String command) throws Exception {
         var result = executeSshCommand(command);
         return extractDigits(result);
     }

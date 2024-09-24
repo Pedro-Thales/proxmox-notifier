@@ -3,11 +3,14 @@ package com.pedrovisk.proxmox.service;
 
 import com.pedrovisk.proxmox.api.ProxmoxApi;
 import com.pedrovisk.proxmox.configuration.ThresholdProperties;
+import com.pedrovisk.proxmox.models.ResourceUsedValuesDTO;
 import com.pedrovisk.proxmox.models.json.NodeConfiguration;
 import com.pedrovisk.proxmox.models.json.RootConfiguration;
 import com.pedrovisk.proxmox.models.notification.NotificationThreshold;
+import com.pedrovisk.proxmox.models.proxmox.NodeStatus;
 import com.pedrovisk.proxmox.service.notifications.NotificationSenderService;
 import com.pedrovisk.proxmox.utils.MeasureRunTime;
+import com.pedrovisk.proxmox.utils.ResourceMapper;
 import io.micrometer.observation.annotation.Observed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -83,53 +87,64 @@ public class ProxmoxStatusService {
     @Observed(contextualName = "proxmox.get-node-status", name = "proxmox.get-node-status-usage")
     public void getNodeStatus() {
 
-        for (NodeConfiguration node : rootConfiguration.getNodes()) {
+        for (NodeConfiguration nodeConfiguration : rootConfiguration.getNodes()) {
 
-            var status = proxmoxApi.getNodeStatus(node.getId());
+            var status = proxmoxApi.getNodeStatus(nodeConfiguration.getId());
 
-            var memory = status.getData().getMemory();
-            var freeMemoryPercent = memory.getFree().divide(memory.getTotal(), 4, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_UP);
+            var nodeStatus = status.getData();
 
-            var usedMemoryPercent = memory.getUsed().divide(memory.getTotal(), 4, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_UP);
-
-            var swap = status.getData().getSwap();
-            var freeSwapPercent = BigDecimal.valueOf((swap.getFree() / swap.getTotal()) * 100).setScale(2, RoundingMode.HALF_UP);
-
-            var rootFs = status.getData().getRootfs();
-            var freeRootFsPercent = BigDecimal.valueOf((rootFs.getFree() / rootFs.getTotal()) * 100).setScale(2, RoundingMode.HALF_UP);
-
-            // Maybe include in this map a value of delay time to get this metric
-            if (freeMemoryPercent.compareTo(BigDecimal.valueOf(thresholdProperties.freeMemory())) < 1) {
-                //TODO Notify using the webhook - discord? telegram? whatsapp?
-                // ntfy - https://docs.ntfy.sh/config/  - smtp config too? Flag to enable or disable smtp from ntfy or disable everything
-
-
-                log.info(STR.
-                        "Free memory getting dangerous. Actual free: \{freeMemoryPercent} Threshold: \{thresholdProperties.freeMemory()}");
-
-                notificationService.sendNotification(NotificationThreshold.builder().build());
-
+            if (nodeStatus == null) {
+                log.error("The Proxmox api returned null for the node: {}", nodeConfiguration.name);
+                continue;
             }
 
-            if (freeSwapPercent.compareTo(BigDecimal.valueOf(thresholdProperties.freeSwap())) < 1) {
-                //TODO Notify using the webhook, email and ntfy?
-                //TODO use string template from java 21
-                log.info("Free swap getting dangerous. Actual free: " + freeSwapPercent + " Threshold: " + thresholdProperties.freeSwap());
+            var resourceUsedValuesDTO = getResourceValues(nodeStatus);
+            var componentId = STR."\{nodeConfiguration.getId()} - \{nodeConfiguration.getName()}";
+            //TODO refactor ResourceMapper to not use it or make it generic to be used in other places,
+            // get rid of containerConfiguration?
+            var resourceMapper = new ResourceMapper(nodeConfiguration, resourceUsedValuesDTO, componentId, "LXC");
+            var notifications = resourceMapper.getAllValues();
 
-            }
-
-            if (freeRootFsPercent.compareTo(BigDecimal.valueOf(thresholdProperties.freeRootfs())) < 1) {
-                //TODO Notify using the webhook, email and ntfy?
-                //TODO use string template from java 21
-                log.info("Free rootfs getting dangerous. Actual free: " + freeRootFsPercent + " Threshold: " + thresholdProperties.freeRootfs());
-
-            }
+            sendNotificationsIfThreshold(notifications);
 
 
         }
 
 
     }
+
+    private ResourceUsedValuesDTO getResourceValues(NodeStatus nodeStatus) {
+        ResourceUsedValuesDTO resourceUsedValuesDTO = new ResourceUsedValuesDTO();
+        resourceUsedValuesDTO.usedMemoryPercent = getUsedPercent(
+                nodeStatus.getMemory().getUsed(), nodeStatus.getMemory().getTotal());
+        resourceUsedValuesDTO.usedSwapPercent = getUsedPercent(
+                nodeStatus.getSwap().getUsed(), nodeStatus.getSwap().getTotal());
+        resourceUsedValuesDTO.usedDiskPercent = getUsedPercent(
+                nodeStatus.getRootfs().getUsed(), nodeStatus.getRootfs().getTotal());
+
+        resourceUsedValuesDTO.usedCpuPercent = BigDecimal.valueOf(nodeStatus.getCpu() * 100);
+
+        return resourceUsedValuesDTO;
+    }
+
+    private static BigDecimal getUsedPercent(BigDecimal actual, BigDecimal maxValue) {
+        return getUsedPercent(actual.doubleValue(), maxValue.doubleValue());
+    }
+
+    private static BigDecimal getUsedPercent(double actual, double maxValue) {
+        return BigDecimal.valueOf((actual / maxValue) * 100).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    public void sendNotificationsIfThreshold(List<NotificationThreshold> notifications) {
+
+        for (NotificationThreshold notification : notifications) {
+            if (notification.getActualValue().compareTo(BigDecimal.valueOf(notification.getThreshold())) > -1) {
+                notificationService.sendNotification(notification);
+            }
+        }
+    }
+
+
 
 
 }

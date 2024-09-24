@@ -64,7 +64,7 @@ public class ContainersStatusService {
         ResourceUsedValuesDTO resourceUsedValuesDTO = new ResourceUsedValuesDTO();
         resourceUsedValuesDTO.usedMemoryPercent = getUsedPercent(lxc.getMem(), lxc.getMaxmem());
         resourceUsedValuesDTO.usedSwapPercent = getUsedPercent(lxc.getSwap(), lxc.getMaxswap());
-        resourceUsedValuesDTO.usedRootFSPercent = getUsedPercent(lxc.getDisk(), lxc.getMaxdisk());
+        resourceUsedValuesDTO.usedDiskPercent = getUsedPercent(lxc.getDisk(), lxc.getMaxdisk());
         resourceUsedValuesDTO.usedCpuPercent = BigDecimal.valueOf(lxc.getCpu() * 100);
 
         return resourceUsedValuesDTO;

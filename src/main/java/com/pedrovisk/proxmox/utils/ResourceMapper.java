@@ -1,7 +1,7 @@
 package com.pedrovisk.proxmox.utils;
 
 import com.pedrovisk.proxmox.models.ResourceUsedValuesDTO;
-import com.pedrovisk.proxmox.models.json.ContainerConfiguration;
+import com.pedrovisk.proxmox.models.json.ConfigurationBase;
 import com.pedrovisk.proxmox.models.notification.NotificationThreshold;
 
 import java.math.BigDecimal;
@@ -10,22 +10,23 @@ import java.util.Optional;
 
 public class ResourceMapper {
 
-    ContainerConfiguration containerConfiguration;
     ResourceUsedValuesDTO resourceUsedValuesDTO;
     String componentId;
     String componentType;
+    ConfigurationBase configurationBase;
 
-    public ResourceMapper(ContainerConfiguration containerConfiguration, ResourceUsedValuesDTO resourceUsedValuesDTO,
+
+    public ResourceMapper(ConfigurationBase configuration, ResourceUsedValuesDTO resourceUsedValuesDTO,
                           String componentId, String componentType) {
-        this.containerConfiguration = containerConfiguration;
         this.resourceUsedValuesDTO = resourceUsedValuesDTO;
         this.componentId = componentId;
         this.componentType = componentType;
+        this.configurationBase = configuration;
 
     }
 
     public List<NotificationThreshold> getAllValues() {
-        return List.of(getCpuValue(), getMemoryValue(), getSwapValue(), getRootFsValue());
+        return List.of(getCpuValue(), getMemoryValue(), getSwapValue(), getDiskValue());
     }
 
     public NotificationThreshold getValue(BigDecimal actualValue, Integer threshold, String valueType) {
@@ -35,22 +36,22 @@ public class ResourceMapper {
 
     public NotificationThreshold getCpuValue() {
         return getValue(resourceUsedValuesDTO.usedCpuPercent,
-                getValueOrOneHundred(containerConfiguration.usedCpuThreshold), "Cpu");
+                getValueOrOneHundred(configurationBase.usedCpuThreshold), "Cpu");
     }
 
     public NotificationThreshold getMemoryValue() {
         return getValue(resourceUsedValuesDTO.usedMemoryPercent,
-                getValueOrOneHundred(containerConfiguration.usedMemoryThreshold), "Memory");
+                getValueOrOneHundred(configurationBase.usedMemoryThreshold), "Memory");
     }
 
     public NotificationThreshold getSwapValue() {
         return getValue(resourceUsedValuesDTO.usedSwapPercent,
-                getValueOrOneHundred(containerConfiguration.usedSwapThreshold), "Swap");
+                getValueOrOneHundred(configurationBase.usedSwapThreshold), "Swap");
     }
 
-    public NotificationThreshold getRootFsValue() {
-        return getValue(resourceUsedValuesDTO.usedRootFSPercent,
-                getValueOrOneHundred(containerConfiguration.usedRootFSThreshold), "RootFS");
+    public NotificationThreshold getDiskValue() {
+        return getValue(resourceUsedValuesDTO.usedDiskPercent,
+                getValueOrOneHundred(configurationBase.usedDiskThreshold), "RootFS");
     }
 
     private int getValueOrOneHundred(Integer value) {

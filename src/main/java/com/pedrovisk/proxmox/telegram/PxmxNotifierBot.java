@@ -1,7 +1,6 @@
 package com.pedrovisk.proxmox.telegram;
 
 import com.pedrovisk.proxmox.configuration.TelegramProperties;
-import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.abilitybots.api.bot.AbilityBot;
 import org.telegram.telegrambots.abilitybots.api.objects.Ability;
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
@@ -9,7 +8,7 @@ import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
 import static org.telegram.telegrambots.abilitybots.api.objects.Locality.USER;
 import static org.telegram.telegrambots.abilitybots.api.objects.Privacy.PUBLIC;
 
-@Component
+
 public class PxmxNotifierBot extends AbilityBot {
 
     private final TelegramProperties properties;

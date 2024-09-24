@@ -31,12 +31,12 @@ class ContainersStatusServiceTest {
         NodeConfiguration node = new NodeConfiguration();
         node.setId("node1");
         ContainerConfiguration container = new ContainerConfiguration();
-        container.setId(1);
+        container.setId("1");
         container.setName("container1");
         container.setUsedCpuThreshold(80);
         container.setUsedMemoryThreshold(80);
         container.setUsedSwapThreshold(80);
-        container.setUsedRootFSThreshold(80);
+        container.setUsedDiskThreshold(80);
         node.setContainers(List.of(container));
         when(rootConfiguration.getNodes()).thenReturn(List.of(node));
 
@@ -77,7 +77,7 @@ class ContainersStatusServiceTest {
         NodeConfiguration node = new NodeConfiguration();
         node.setId("node1");
         ContainerConfiguration container = new ContainerConfiguration();
-        container.setId(1);
+        container.setId("1");
         container.setName("container1");
         container.setUsedCpuThreshold(80);
         container.setUsedMemoryThreshold(80);
@@ -125,7 +125,7 @@ class ContainersStatusServiceTest {
         NodeConfiguration node = new NodeConfiguration();
         node.setId("node1");
         ContainerConfiguration container = new ContainerConfiguration();
-        container.setId(1);
+        container.setId("1");
         container.setName("container1");
         container.setUsedCpuThreshold(80);
         container.setUsedMemoryThreshold(80);

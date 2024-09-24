@@ -19,7 +19,7 @@ import java.util.Map;
 public class VmStatus {
     public int vmid;
     public double cpu;
-    public int disk;
+    public long disk;
     public long mem;
     @JsonProperty("running-qemu")
     public String runningQemu;
@@ -41,9 +41,9 @@ public class VmStatus {
     public int uptime;
     @JsonProperty("proxmox-support")
     public VmProxmoxSupport proxmoxSupport;
-    public int diskread;
+    public long diskread;
     public long netout;
     public int pid;
-    public int diskwrite;
+    public long diskwrite;
     public Ha ha;
 }

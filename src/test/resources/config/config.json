@@ -3,53 +3,69 @@
     {
       "id": "pxmx",
       "name": "proxmox1",
-      "usedCpuThreshold": 50,
-      "usedMemoryThreshold": 10,
+      "usedCpuThreshold": 10,
+      "usedMemoryThreshold": 75,
       "usedSwapThreshold": 10,
-      "usedRootFSThreshold": 10,
+      "usedDiskThreshold": 75,
       "containers": [
         {
           "id": 103,
-          "name": "LXC 103",
-          "usedCpuThreshold": 50,
-          "usedMemoryThreshold": 10,
+          "name": "Jellyfin",
+          "usedCpuThreshold": 25,
+          "usedMemoryThreshold": 50,
           "usedSwapThreshold": 10,
-          "usedRootFSThreshold": 10
+          "usedDiskThreshold": 75
+        },
+        {
+          "id": 106,
+          "name": "Shinobi",
+          "usedCpuThreshold": 75,
+          "usedMemoryThreshold": 60,
+          "usedSwapThreshold": 10,
+          "usedDiskThreshold": 75
         },
         {
           "id": 200,
-          "name": "Lxc 200",
+          "name": "Pihole",
           "usedCpuThreshold": 50,
-          "usedMemoryThreshold": 10,
+          "usedMemoryThreshold": 60,
           "usedSwapThreshold": 10,
-          "usedRootFSThreshold": 10
+          "usedDiskThreshold": 75
+        },
+        {
+          "id": 201,
+          "name": "FileServer",
+          "usedCpuThreshold": 50,
+          "usedMemoryThreshold": 75,
+          "usedSwapThreshold": 10,
+          "usedDiskThreshold": 75
         },
         {
           "id": 300,
-          "name": "Lxc 300",
+          "name": "Kasm",
           "usedCpuThreshold": 50,
-          "usedMemoryThreshold": 10,
+          "usedMemoryThreshold": 75,
           "usedSwapThreshold": 10,
-          "usedRootFSThreshold": 10
+          "usedDiskThreshold": 75
         }
       ],
       "vms": [
         {
           "id": 100,
-          "name": "Vm1",
+          "name": "Android",
           "usedCpuThreshold": 50,
-          "usedMemoryThreshold": 10,
+          "usedMemoryThreshold": 75,
           "usedSwapThreshold": 10,
-          "usedDiskThreshold": 10,
+          "usedDiskThreshold": 75,
           "hasAgent": true
         },
         {
           "id": 101,
-          "name": "Vm2",
+          "name": "Portainer",
           "usedCpuThreshold": 50,
-          "usedMemoryThreshold": 10,
+          "usedMemoryThreshold": 70,
           "usedSwapThreshold": 10,
-          "usedDiskThreshold": 10,
+          "usedDiskThreshold": 75,
           "hasAgent": true
         }
       ],
@@ -58,7 +74,7 @@
           "name": "Temperature NVME 01",
           "type": "SMARTCTL",
           "device": "nvme0n1",
-          "threshold": 50
+          "threshold": 0
         },
         {
           "name": "Temperature SDA",

@@ -31,25 +31,39 @@ public class NotificationSenderService {
         log.debug("NOTIFIERS SIZE = {}", notificators.size());
         log.debug("NOTIFIERS = {}", notificators);
 
+        var notificationId = notificationBase.getComponentId() + notificationBase.getValueType();
+        var now = Instant.now();
+
         //TODO add a flag to ignore or send NotificationErrors if enabled
 
-        //Verify if we already sent this notification in the last 5 minutes.
         //TODO add more information to guarantee that is the same notification.
         //TODO verify in another place after notification sent, because there is no guarantee it
         //   was sent and MAYBE we want for each notificator to have a different time reminder
 
-        var lastDate = repository.get(notificationBase.getComponentId());
-        var now = Instant.now();
+        if (repository.contains(notificationId)) {
+            var lastNotification = repository.get(notificationId);
 
-        log.debug("Notification lastdate: {}", lastDate);
-        log.debug("Notification now: {}", now);
+            log.debug("Notification lastdate: {}", lastNotification.getNotificationDate());
+            log.debug("Notification now: {}", now);
 
-        if (lastDate == null || now.isAfter(lastDate.plus(5, ChronoUnit.MINUTES))) {
-            notificators.forEach(notifier -> notifier.sendNotification(notificationBase));
+            //TODO add MaxNotificationQuantity flag with a value to check if a notification was sent x times even
+            // before the 5 minutes. Change 5 minutes to a configuration too?
+            if (now.isBefore(lastNotification.notificationDate.plus(5, ChronoUnit.MINUTES))) {
 
-            repository.insert(notificationBase.getComponentId() + notificationBase.getValueType(), now);
-            log.debug("NOTIFICATION SENT AND SAVED IN THE DATABASE");
+                repository.insert(notificationId, NotificationEntity.builder()
+                        .notificationDate(lastNotification.notificationDate)
+                        .quantity(lastNotification.quantity + 1).build());
+
+                log.debug("Increasing notification quantity value");
+                return;
+            }
+
         }
+
+        repository.insert(notificationId, NotificationEntity.builder().notificationDate(now)
+                .quantity(1).build());
+        notificators.forEach(notifier -> notifier.sendNotification(notificationBase));
+        log.debug("NOTIFICATION SENT AND SAVED IN THE DATABASE");
 
         log.debug("====== SENDING NOTIFICATION ====== ");
 

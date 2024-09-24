@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
 @TestPropertySource(properties = "proxmox.configuration-file-path=classpath:config/config.json")
@@ -19,6 +19,7 @@ class ProxmoxNotifierApplicationTests {
 
 	@Test
 	void contextLoads() {
+
 		assertNotNull(rootConfiguration);
 		assertEquals(1, rootConfiguration.getNodes().size());
 		assertEquals("pxmx", rootConfiguration.getNodes().getFirst().getId());

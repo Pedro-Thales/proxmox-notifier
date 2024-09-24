@@ -1,15 +1,10 @@
 package com.pedrovisk.proxmox.controller;
 
-import com.pedrovisk.proxmox.service.ProxmoxStatusService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-@RestController
-@RequestMapping("monitor")
+//@RestController
+//@RequestMapping("monitor")
 public class EntryController {
 
-    ProxmoxStatusService statusService;
+   /* ProxmoxStatusService statusService;
 
     public EntryController(ProxmoxStatusService statusService) {
         this.statusService = statusService;
@@ -37,6 +32,6 @@ public class EntryController {
         var diskFree = statusService.getDisk();
 
         return diskFree;
-    }
+    }*/
 
 }

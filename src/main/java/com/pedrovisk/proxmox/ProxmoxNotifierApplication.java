@@ -72,7 +72,7 @@ public class ProxmoxNotifierApplication {
 
 	@EventListener
 	void ready(ApplicationReadyEvent readyEvent) {
-		System.out.println("APP IS READY to...");
+		log.info("APP IS READY to...");
 	}
 
 }

@@ -16,5 +16,5 @@ public class ResourceUsedValuesDTO {
     public BigDecimal usedCpuPercent;
     public BigDecimal usedMemoryPercent;
     public BigDecimal usedSwapPercent;
-    public BigDecimal usedRootFSPercent;
+    public BigDecimal usedDiskPercent;
 }

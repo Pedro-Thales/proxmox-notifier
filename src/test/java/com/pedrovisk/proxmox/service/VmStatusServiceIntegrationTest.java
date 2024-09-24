@@ -96,11 +96,11 @@ class VmStatusServiceIntegrationTest {
         NodeConfiguration node = new NodeConfiguration();
         node.setId("node1");
         var vmsConfigurations = List.of(
-                VmsConfiguration.builder().id(1).name("container1")
+                VmsConfiguration.builder().id("1").name("container1")
                         .usedCpuThreshold(80).usedMemoryThreshold(10).usedSwapThreshold(80).usedDiskThreshold(10)
                         .hasAgent(true)
                         .build(),
-                VmsConfiguration.builder().id(2).name("container2")
+                VmsConfiguration.builder().id("2").name("container2")
                         .usedCpuThreshold(90).usedMemoryThreshold(10).usedSwapThreshold(90)
                         .hasAgent(false)
                         .build()
@@ -134,11 +134,11 @@ class VmStatusServiceIntegrationTest {
         NodeConfiguration node = new NodeConfiguration();
         node.setId("node1");
         var vmsConfigurations = List.of(
-                VmsConfiguration.builder().id(1).name("container1")
+                VmsConfiguration.builder().id("1").name("container1")
                         .usedCpuThreshold(80).usedMemoryThreshold(10).usedSwapThreshold(80).usedDiskThreshold(10)
                         .hasAgent(true)
                         .build(),
-                VmsConfiguration.builder().id(2).name("container2")
+                VmsConfiguration.builder().id("2").name("container2")
                         .usedCpuThreshold(90).usedMemoryThreshold(10).usedSwapThreshold(90)
                         .hasAgent(true)
                         .build()
@@ -177,11 +177,11 @@ class VmStatusServiceIntegrationTest {
         NodeConfiguration node = new NodeConfiguration();
         node.setId("node1");
         var vmsConfigurations = List.of(
-                VmsConfiguration.builder().id(1).name("container1")
+                VmsConfiguration.builder().id("1").name("container1")
                         .usedCpuThreshold(80).usedMemoryThreshold(10).usedSwapThreshold(80).usedDiskThreshold(10)
                         .hasAgent(true)
                         .build(),
-                VmsConfiguration.builder().id(2).name("container2")
+                VmsConfiguration.builder().id("2").name("container2")
                         .usedCpuThreshold(90).usedMemoryThreshold(10).usedSwapThreshold(90)
                         .hasAgent(true)
                         .build()

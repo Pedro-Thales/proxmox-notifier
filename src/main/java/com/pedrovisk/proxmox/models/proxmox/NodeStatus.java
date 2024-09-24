@@ -20,7 +20,7 @@ public class NodeStatus {
     public Memory memory;
     public List<String> loadavg;
     public int wait;
-    public int cpu;
+    public double cpu;
     public Cpuinfo cpuinfo;
     public Rootfs rootfs;
     public String pveversion;

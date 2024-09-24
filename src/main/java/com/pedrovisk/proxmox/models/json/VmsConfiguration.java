@@ -2,28 +2,18 @@ package com.pedrovisk.proxmox.models.json;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class VmsConfiguration {
+@SuperBuilder
+public class VmsConfiguration extends ConfigurationBase{
 
-    @JsonProperty("id")
-    public Integer id;
-    @JsonProperty("name")
-    public String name;
-    @JsonProperty("usedCpuThreshold")
-    public Integer usedCpuThreshold;
-    @JsonProperty("usedMemoryThreshold")
-    public Integer usedMemoryThreshold;
-    @JsonProperty("usedSwapThreshold")
-    public Integer usedSwapThreshold;
-    @JsonProperty("usedDiskThreshold")
-    public Integer usedDiskThreshold;
     @JsonProperty("hasAgent")
     public boolean hasAgent;
 }
