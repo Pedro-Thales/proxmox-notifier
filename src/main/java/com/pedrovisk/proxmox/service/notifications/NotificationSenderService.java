@@ -1,6 +1,7 @@
 package com.pedrovisk.proxmox.service.notifications;
 
 import com.pedrovisk.proxmox.models.notification.NotificationBase;
+import com.pedrovisk.proxmox.models.notification.NotificationEntity;
 import com.pedrovisk.proxmox.repository.NotificationSentReminderInMemoryRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

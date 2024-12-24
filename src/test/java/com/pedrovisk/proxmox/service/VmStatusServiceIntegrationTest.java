@@ -11,7 +11,6 @@ import com.pedrovisk.proxmox.models.notification.NotificationBase;
 import com.pedrovisk.proxmox.models.notification.NotificationError;
 import com.pedrovisk.proxmox.models.notification.NotificationThreshold;
 import com.pedrovisk.proxmox.service.notifications.NotificationSenderService;
-import nl.altindag.ssl.util.internal.IOUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -28,13 +27,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.telegram.telegrambots.longpolling.starter.TelegramBotInitializer;
 
 import java.io.IOException;
 import java.util.List;
 
-import static java.nio.charset.Charset.defaultCharset;
 import static org.mockito.Mockito.*;
-import static org.springframework.util.StreamUtils.copyToString;
 
 
 @SpringBootTest
@@ -42,7 +40,7 @@ import static org.springframework.util.StreamUtils.copyToString;
 @EnableFeignClients
 @EnableConfigurationProperties
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {WiremockConfig.class })
+@ContextConfiguration(classes = {WiremockConfig.class})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class VmStatusServiceIntegrationTest {
 
@@ -64,6 +62,8 @@ class VmStatusServiceIntegrationTest {
     private RootConfiguration rootConfiguration;
     @MockBean
     private NotificationSenderService notificationSenderService;
+    @MockBean
+    private TelegramBotInitializer telegramBotInitializer;
 
     @Autowired
     private VmStatusService vmStatusService;
@@ -75,10 +75,9 @@ class VmStatusServiceIntegrationTest {
     void setupWireMockProxmoxResponse(String url, String responseJsonPath) throws IOException {
         mockProxmoxService.stubFor(WireMock.get(WireMock.urlEqualTo(url))
                 .willReturn(WireMock.aResponse()
-                                    .withStatus(HttpStatus.OK.value())
-                                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                                    .withBody(copyToString(IOUtils.getResourceAsStream(responseJsonPath),
-                                            defaultCharset()))));
+                        .withStatus(HttpStatus.OK.value())
+                        .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                        .withBodyFile(responseJsonPath)));
 
     }
 
@@ -88,9 +87,9 @@ class VmStatusServiceIntegrationTest {
 
         ArgumentCaptor<NotificationBase> captor = ArgumentCaptor.forClass(NotificationBase.class);
 
-        setupWireMockProxmoxResponse("/nodes/node1/qemu/1/status/current", "responses/vm-status-response-ok.json");
-        setupWireMockProxmoxResponse("/nodes/node1/qemu/1/agent/get-fsinfo", "responses/vm-fs-status-response-ok.json");
-        setupWireMockProxmoxResponse("/nodes/node1/qemu/2/status/current", "responses/vm-status-response-ok.json");
+        setupWireMockProxmoxResponse("/nodes/node1/qemu/1/status/current", "vm-status-response-ok.json");
+        setupWireMockProxmoxResponse("/nodes/node1/qemu/1/agent/get-fsinfo", "vm-fs-status-response-ok.json");
+        setupWireMockProxmoxResponse("/nodes/node1/qemu/2/status/current", "vm-status-response-ok.json");
 
 
         NodeConfiguration node = new NodeConfiguration();
@@ -104,7 +103,7 @@ class VmStatusServiceIntegrationTest {
                         .usedCpuThreshold(90).usedMemoryThreshold(10).usedSwapThreshold(90)
                         .hasAgent(false)
                         .build()
-                );
+        );
         node.setVms(vmsConfigurations);
 
         when(rootConfiguration.getNodes()).thenReturn(List.of(node));
@@ -127,9 +126,10 @@ class VmStatusServiceIntegrationTest {
 
         ArgumentCaptor<NotificationBase> captor = ArgumentCaptor.forClass(NotificationBase.class);
 
-        setupWireMockProxmoxResponse("/nodes/node1/qemu/1/status/current", "responses/vm-status-response-ok.json");
-        setupWireMockProxmoxResponse("/nodes/node1/qemu/1/agent/get-fsinfo", "responses/vm-fs-status-response-ok.json");
-        setupWireMockProxmoxResponse("/nodes/node1/qemu/2/status/current", "responses/vm-not-exists-response-null.json");
+        setupWireMockProxmoxResponse("/nodes/node1/qemu/1/status/current", "vm-status-response-ok.json");
+        setupWireMockProxmoxResponse("/nodes/node1/qemu/1/agent/get-fsinfo", "vm-fs-status-response-ok.json");
+        setupWireMockProxmoxResponse("/nodes/node1/qemu/2/status/current", "vm-not-exists-response-null" +
+                ".json");
 
         NodeConfiguration node = new NodeConfiguration();
         node.setId("node1");
@@ -169,10 +169,11 @@ class VmStatusServiceIntegrationTest {
 
         ArgumentCaptor<NotificationBase> captor = ArgumentCaptor.forClass(NotificationBase.class);
 
-        setupWireMockProxmoxResponse("/nodes/node1/qemu/1/status/current", "responses/vm-status-response-ok.json");
-        setupWireMockProxmoxResponse("/nodes/node1/qemu/1/agent/get-fsinfo", "responses/vm-fs-status-response-ok.json");
-        setupWireMockProxmoxResponse("/nodes/node1/qemu/2/status/current", "responses/vm-status-response-ok.json");
-        setupWireMockProxmoxResponse("/nodes/node1/qemu/2/agent/get-fsinfo", "responses/vm-not-exists-response-null.json");
+        setupWireMockProxmoxResponse("/nodes/node1/qemu/1/status/current", "vm-status-response-ok.json");
+        setupWireMockProxmoxResponse("/nodes/node1/qemu/1/agent/get-fsinfo", "vm-fs-status-response-ok.json");
+        setupWireMockProxmoxResponse("/nodes/node1/qemu/2/status/current", "vm-status-response-ok.json");
+        setupWireMockProxmoxResponse("/nodes/node1/qemu/2/agent/get-fsinfo", "vm-not-exists-response-null" +
+                ".json");
 
         NodeConfiguration node = new NodeConfiguration();
         node.setId("node1");

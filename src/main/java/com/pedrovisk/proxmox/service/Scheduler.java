@@ -36,7 +36,7 @@ public class Scheduler {
     @Scheduled(initialDelay = 5000, fixedDelayString = "${update.frequency.temperature}")
     public void getTemperatureScheduler() throws Exception {
 
-        sshService.call();
+        sshService.call(false);
 
     }
 

@@ -5,7 +5,9 @@ import com.pedrovisk.proxmox.models.json.RootConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.TestPropertySource;
+import org.telegram.telegrambots.longpolling.starter.TelegramBotInitializer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -16,6 +18,9 @@ class ProxmoxNotifierApplicationTests {
 
 	@Autowired
 	RootConfiguration rootConfiguration;
+
+	@MockBean
+	private TelegramBotInitializer telegramBotInitializer;
 
 	@Test
 	void contextLoads() {

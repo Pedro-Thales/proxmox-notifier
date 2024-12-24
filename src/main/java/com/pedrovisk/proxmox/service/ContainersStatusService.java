@@ -3,6 +3,7 @@ package com.pedrovisk.proxmox.service;
 
 import com.pedrovisk.proxmox.api.ProxmoxApi;
 import com.pedrovisk.proxmox.models.ResourceUsedValuesDTO;
+import com.pedrovisk.proxmox.models.json.ContainerConfiguration;
 import com.pedrovisk.proxmox.models.json.RootConfiguration;
 import com.pedrovisk.proxmox.models.notification.NotificationThreshold;
 import com.pedrovisk.proxmox.models.proxmox.ContainerStatus;
@@ -32,35 +33,36 @@ public class ContainersStatusService {
         //TODO Manage time between notifications and add control for schedule in the config.json?
         for (var node : rootConfiguration.getNodes()) {
             for (var containerConfiguration : node.getContainers()) {
-                var status = proxmoxApi.getLxcContainersStatus(node.getId(), String.valueOf(containerConfiguration.getId()));
-                //TODO Validate all results from apis if this is null is crashing, what about other fields?
-                var lxc = status.getData();
-
-                if (lxc == null) {
-                    log.error("The Proxmox api returned null for the lxc: {}", containerConfiguration.name);
-                    continue;
+                try {
+                    var status = proxmoxApi.getLxcContainersStatus(node.getId(), String.valueOf(containerConfiguration.getId()));
+                    if (status != null && status.getData() != null) {
+                        processLxcStatus(containerConfiguration, status.getData());
+                    } else {
+                        log.error("Received null for LXC: {}", containerConfiguration.getName());
+                    }
+                } catch (Exception e) {
+                    log.error("Error getting LXC status for container: {}", containerConfiguration.getName(), e);
                 }
-
-                if ("stopped".equalsIgnoreCase(lxc.getStatus())) {
-                    log.info("LXC STOPPED");
-                    //TODO notify if stopped
-                    continue;
-                }
-
-                var resourceUsedValuesDTO = getResourceValues(lxc);
-                var componentId = STR."\{lxc.getVmid()} - \{containerConfiguration.name}";
-                //TODO refactor ResourceMapper to not use it or make it generic to be used in other places,
-                // get rid of containerConfiguration?
-                var resourceMapper = new ResourceMapper(containerConfiguration, resourceUsedValuesDTO, componentId, "LXC");
-                var notifications = resourceMapper.getAllValues();
-
-                sendNotificationsIfThreshold(notifications);
 
             }
         }
     }
 
-    private ResourceUsedValuesDTO getResourceValues(ContainerStatus lxc) {
+    private void processLxcStatus(ContainerConfiguration containerConfiguration, ContainerStatus lxc) {
+        if ("stopped".equalsIgnoreCase(lxc.getStatus())) {
+            log.info("LXC stopped: {}", containerConfiguration.getName());
+            //TODO notify if stopped
+            return;
+        }
+
+        var resourceUsedValuesDTO = calculateResourceValues(lxc);
+        var componentId = String.format("%s - %s", lxc.getVmid(), containerConfiguration.getName());
+
+        var resourceMapper = new ResourceMapper(containerConfiguration, resourceUsedValuesDTO, componentId, "LXC");
+        sendNotificationsIfThreshold(resourceMapper.getAllValues());
+    }
+
+    private ResourceUsedValuesDTO calculateResourceValues(ContainerStatus lxc) {
         ResourceUsedValuesDTO resourceUsedValuesDTO = new ResourceUsedValuesDTO();
         resourceUsedValuesDTO.usedMemoryPercent = getUsedPercent(lxc.getMem(), lxc.getMaxmem());
         resourceUsedValuesDTO.usedSwapPercent = getUsedPercent(lxc.getSwap(), lxc.getMaxswap());
@@ -71,6 +73,9 @@ public class ContainersStatusService {
     }
 
     private static BigDecimal getUsedPercent(double actual, double maxValue) {
+        if (maxValue <= 0) {
+            return BigDecimal.ZERO; // Prevent division by zero
+        }
         return BigDecimal.valueOf((actual / maxValue) * 100).setScale(2, RoundingMode.HALF_UP);
     }
 

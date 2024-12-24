@@ -73,19 +73,26 @@
 		<!-- Telegram dependencies -->
 		<dependency>
 			<groupId>org.telegram</groupId>
-			<artifactId>telegrambots-abilities</artifactId>
-			<version>7.9.1</version>
+			<artifactId>telegrambots-client</artifactId>
+			<version>8.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.telegram</groupId>
-			<artifactId>telegrambots-client</artifactId>
-			<version>7.9.1</version>
+			<artifactId>telegrambots-springboot-longpolling-starter</artifactId>
+			<version>8.0.0</version>
 		</dependency>
+
 		<!-- Telegram dependencies -->
 		<dependency>
 			<groupId>com.jcraft</groupId>
 			<artifactId>jsch</artifactId>
 			<version>0.1.55</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>33.4.0-jre</version>
 		</dependency>
 
 	</dependencies>
@@ -142,6 +149,10 @@
 				<configuration>
 					<image>
 						<builder>paketobuildpacks/builder-jammy-tiny</builder>
+						<env>
+							<BP_JVM_CDS_ENABLED>true</BP_JVM_CDS_ENABLED>
+							<BP_SPRING_AOT_ENABLED>true</BP_SPRING_AOT_ENABLED>
+						</env>
 					</image>
 					<layers>
 						<enabled>true</enabled>

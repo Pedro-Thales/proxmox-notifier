@@ -1,44 +1,76 @@
 package com.pedrovisk.proxmox.telegram;
 
 import com.pedrovisk.proxmox.configuration.TelegramProperties;
-import org.telegram.telegrambots.abilitybots.api.bot.AbilityBot;
-import org.telegram.telegrambots.abilitybots.api.objects.Ability;
+import com.pedrovisk.proxmox.service.SshService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
+import org.telegram.telegrambots.longpolling.BotSession;
+import org.telegram.telegrambots.longpolling.interfaces.LongPollingUpdateConsumer;
+import org.telegram.telegrambots.longpolling.starter.AfterBotRegistration;
+import org.telegram.telegrambots.longpolling.starter.SpringLongPollingBot;
+import org.telegram.telegrambots.longpolling.util.LongPollingSingleThreadUpdateConsumer;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.generics.TelegramClient;
 
-import static org.telegram.telegrambots.abilitybots.api.objects.Locality.USER;
-import static org.telegram.telegrambots.abilitybots.api.objects.Privacy.PUBLIC;
-
-
-public class PxmxNotifierBot extends AbilityBot {
+@Slf4j
+@Component
+public class PxmxNotifierBot implements SpringLongPollingBot, LongPollingSingleThreadUpdateConsumer {
 
     private final TelegramProperties properties;
-    private final TelegramResponseHandler responseHandler;
+    private final TelegramClient telegramClient;
+    private final SshService sshService;
 
-    //TODO user this bot to get temperature information and maybe be notified from other things.
-    //      To get temperature try to call pxmx api to send a bash command to show temperature and get result
-
-
-    public static final String START_DESCRIPTION = "Starts the bot";
-
-    public PxmxNotifierBot(TelegramProperties properties) {
-        super(new OkHttpTelegramClient(properties.token()), "PxmxNotifierBot");
+    public PxmxNotifierBot(TelegramProperties properties, SshService sshService) {
         this.properties = properties;
-        this.responseHandler = new TelegramResponseHandler(silent, db);
+        this.sshService = sshService;
+        this.telegramClient = new OkHttpTelegramClient(getBotToken());
     }
 
-    public Ability startBot() {
-        return Ability
-                .builder()
-                .name("start")
-                .info(START_DESCRIPTION)
-                .locality(USER)
-                .privacy(PUBLIC)
-                .action(ctx -> responseHandler.replyToStart(ctx.chatId()))
-                .build();
+    @AfterBotRegistration
+    public void afterRegistration(BotSession botSession) {
+        log.info("Registered bot running state is: " + botSession.isRunning());
     }
 
     @Override
-    public long creatorId() {
-        return 1L;
+    public String getBotToken() {
+        return properties.token();
+    }
+
+    @Override
+    public LongPollingUpdateConsumer getUpdatesConsumer() {
+        return this;
+    }
+
+    @Override
+    public void consume(Update update) {
+
+        if (update.hasMessage() && update.getMessage().hasText()) {
+            String message = update.getMessage().getText();
+            long chatId = update.getMessage().getChatId();
+            switch (message) {
+                case "/temperature", "/temp" -> sendTemperatureMessage();
+                default -> sendDefaultMessage(chatId);
+            }
+        }
+
+    }
+
+    private void sendDefaultMessage(long chatId) {
+        SendMessage messageToSend = SendMessage.builder().chatId(chatId).text("Invalid command").build();
+        try {
+            telegramClient.execute(messageToSend);
+        } catch (Exception e) {
+            log.error("Error while sending message", e);
+        }
+    }
+
+    private void sendTemperatureMessage() {
+        try {
+            sshService.call(true);
+        } catch (Exception e ){
+            log.error("Error while getting temperature", e);
+        }
     }
 }
