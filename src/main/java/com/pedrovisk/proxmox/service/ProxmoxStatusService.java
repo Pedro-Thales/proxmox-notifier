@@ -2,7 +2,6 @@ package com.pedrovisk.proxmox.service;
 
 
 import com.pedrovisk.proxmox.api.ProxmoxApi;
-import com.pedrovisk.proxmox.configuration.ThresholdProperties;
 import com.pedrovisk.proxmox.models.ResourceUsedValuesDTO;
 import com.pedrovisk.proxmox.models.json.NodeConfiguration;
 import com.pedrovisk.proxmox.models.json.RootConfiguration;
@@ -14,6 +13,7 @@ import com.pedrovisk.proxmox.utils.ResourceMapper;
 import io.micrometer.observation.annotation.Observed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -27,7 +27,6 @@ public class ProxmoxStatusService {
 
     private final NotificationSenderService notificationService;
     private final ProxmoxApi proxmoxApi;
-    private final ThresholdProperties thresholdProperties;
     private final RootConfiguration rootConfiguration;
 
     @MeasureRunTime
@@ -85,6 +84,7 @@ public class ProxmoxStatusService {
 
     @MeasureRunTime
     @Observed(contextualName = "proxmox.get-node-status", name = "proxmox.get-node-status-usage")
+    @Scheduled(initialDelay = 3000, fixedDelayString = "${update.frequency.node-status}")
     public void getNodeStatus() {
 
         for (NodeConfiguration nodeConfiguration : rootConfiguration.getNodes()) {

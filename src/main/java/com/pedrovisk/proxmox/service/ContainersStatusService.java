@@ -12,6 +12,7 @@ import com.pedrovisk.proxmox.utils.MeasureRunTime;
 import com.pedrovisk.proxmox.utils.ResourceMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -28,6 +29,7 @@ public class ContainersStatusService {
     private final NotificationSenderService notificationSenderService;
 
     @MeasureRunTime
+    @Scheduled(initialDelay = 3000, fixedDelayString = "${update.frequency.node-status}")
     public void getAllLxcStatus() {
 
         //TODO Manage time between notifications and add control for schedule in the config.json?

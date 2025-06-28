@@ -19,15 +19,14 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.telegram.telegrambots.longpolling.starter.TelegramBotInitializer;
 
 import java.io.IOException;
 import java.util.List;
@@ -48,27 +47,23 @@ class VmStatusServiceIntegrationTest {
     @Autowired
     private WireMockServer mockProxmoxService;
 
-    @MockBean
+    @MockitoBean
     private ProxmoxStatusService proxmoxStatusService;
-    @MockBean
+    @MockitoBean
     private ContainersStatusService containersStatusService;
-    @MockBean
+    @MockitoBean
     private FirewallLogMonitorService firewallLogMonitorService;
-    @MockBean
-    private Scheduler scheduler;
-    @MockBean
+    @MockitoBean
     private SshService sshService;
-    @MockBean
+    @MockitoBean
     private RootConfiguration rootConfiguration;
-    @MockBean
+    @MockitoBean
     private NotificationSenderService notificationSenderService;
-    @MockBean
-    private TelegramBotInitializer telegramBotInitializer;
 
     @Autowired
     private VmStatusService vmStatusService;
 
-    @SpyBean
+    @MockitoSpyBean
     private ProxmoxApi proxmoxApi;
 
 

@@ -3,53 +3,52 @@
     {
       "id": "pxmx",
       "name": "proxmox1",
-      "usedCpuThreshold": 50,
-      "usedMemoryThreshold": 10,
-      "usedSwapThreshold": 10,
-      "usedRootFSThreshold": 10,
+      "usedCpuThreshold": 80,
+      "usedMemoryThreshold": 85,
+      "usedSwapThreshold": 80,
+      "usedDiskThreshold": 85,
       "containers": [
         {
           "id": 103,
           "name": "LXC 103",
-          "usedCpuThreshold": 50,
-          "usedMemoryThreshold": 10,
-          "usedSwapThreshold": 10,
-          "usedRootFSThreshold": 10
+          "usedCpuThreshold": 85,
+          "usedMemoryThreshold": 80,
+          "usedSwapThreshold": 80,
+          "usedDiskThreshold": 85
         },
         {
           "id": 200,
-          "name": "Lxc 200",
-          "usedCpuThreshold": 50,
-          "usedMemoryThreshold": 10,
-          "usedSwapThreshold": 10,
-          "usedRootFSThreshold": 10
+          "name": "LXC 200",
+          "usedCpuThreshold": 80,
+          "usedMemoryThreshold": 80,
+          "usedSwapThreshold": 80,
+          "usedDiskThreshold": 85
+        },
+        {
+          "id": 201,
+          "name": "LXC 201",
+          "usedCpuThreshold": 80,
+          "usedMemoryThreshold": 85,
+          "usedSwapThreshold": 80,
+          "usedDiskThreshold": 85
         },
         {
           "id": 300,
-          "name": "Lxc 300",
-          "usedCpuThreshold": 50,
-          "usedMemoryThreshold": 10,
-          "usedSwapThreshold": 10,
-          "usedRootFSThreshold": 10
+          "name": "LXC 300",
+          "usedCpuThreshold": 80,
+          "usedMemoryThreshold": 85,
+          "usedSwapThreshold": 80,
+          "usedDiskThreshold": 85
         }
       ],
       "vms": [
         {
-          "id": 100,
-          "name": "Vm1",
-          "usedCpuThreshold": 50,
-          "usedMemoryThreshold": 10,
-          "usedSwapThreshold": 10,
-          "usedDiskThreshold": 10,
-          "hasAgent": true
-        },
-        {
           "id": 101,
-          "name": "Vm2",
-          "usedCpuThreshold": 50,
-          "usedMemoryThreshold": 10,
-          "usedSwapThreshold": 10,
-          "usedDiskThreshold": 10,
+          "name": "VM 101",
+          "usedCpuThreshold": 80,
+          "usedMemoryThreshold": 80,
+          "usedSwapThreshold": 80,
+          "usedDiskThreshold": 85,
           "hasAgent": true
         }
       ],
@@ -58,38 +57,38 @@
           "name": "Temperature NVME 01",
           "type": "SMARTCTL",
           "device": "nvme0n1",
-          "threshold": 50
+          "threshold": 70
         },
         {
           "name": "Temperature SDA",
           "type": "SMARTCTL",
           "device": "sda",
           "grep": "Current Temperature",
-          "threshold": 40
+          "threshold": 70
         },
         {
           "name": "Temperature SDB",
           "type": "SMARTCTL",
           "device": "sdb",
-          "threshold": 40
+          "threshold": 70
         },
         {
           "name": "Temperature SDC",
           "type": "SMARTCTL",
           "device": "sdc",
-          "threshold": 40
+          "threshold": 70
         },
         {
           "name": "Temperature SDD",
           "type": "CUSTOM",
           "command": "smartctl -l scttemp /dev/sdd | grep 'Current Temperature'",
-          "threshold": 40
+          "threshold": 70
         },
         {
           "name": "CPU Temperature",
           "type": "SENSORS",
           "grep": "Package id 0",
-          "threshold": 50
+          "threshold": 70
         }
       ]
     }

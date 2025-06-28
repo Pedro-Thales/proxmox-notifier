@@ -9,15 +9,17 @@ import com.pedrovisk.proxmox.models.proxmox.firewall.FirewallVmLogLine;
 import com.pedrovisk.proxmox.repository.FirewallLogInMemoryRepository;
 import com.pedrovisk.proxmox.utils.FirewallLogParser;
 import com.pedrovisk.proxmox.utils.MeasureRunTime;
-import io.micrometer.core.annotation.Timed;
 import io.micrometer.observation.annotation.Observed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@ConditionalOnProperty(name = "firewall-log.enabled", havingValue = "true")
 public class FirewallLogMonitorService {
 
     private final ProxmoxApi proxmoxApi;
@@ -31,8 +33,8 @@ public class FirewallLogMonitorService {
 
     @MeasureRunTime
     @Observed(contextualName = "proxmox.get-firewall-logs", name = "proxmox.get-firewall-logs-usage")
-    @Timed(value = "timed-firewall-log")
-    public void getFirewallLogs() {
+    @Scheduled(initialDelay = 3000, fixedDelayString = "${update.frequency.node-status}")
+    public synchronized void getFirewallLogs() {
 
         var firewallLogRoot = proxmoxApi.getFirewallLog(rootConfiguration.getNodes().getFirst().getId(), LOG_COUNTER);
 
@@ -71,13 +73,11 @@ public class FirewallLogMonitorService {
                     }
                 }
 
-
                 log.info("REPO SIZE: " + firewallLogRepository.getFirewallLogLines().size());
 
                 //TODO evaluate to save data to a database to maybe notify by patterns:
                 // Some Ip is being dropped multiple times
                 // New IP Dropped or accepted
-
 
             } catch (Exception e) {
                 log.error("Exception while parsing line. -> " + line.getLineText());

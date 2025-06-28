@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 @Service
 @Slf4j
@@ -36,7 +35,7 @@ public class TelegramNotificationSender implements NotificationSender{
             var response = telegramApi.sendMessageToBotChatDefault(escapedMessage);
             if (response.getStatusCode() != HttpStatus.OK) {
                 log.error("Error while sending message to telegram! Response: {} ", response);
-                throw new TelegramApiException("Status was not OK");
+                throw new Exception("Status was not OK");
             }
         } catch (Exception e) {
             log.error("Not able to sent message to telegram, check logs to see more information! ", e);

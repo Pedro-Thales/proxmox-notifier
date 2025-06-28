@@ -1,6 +1,5 @@
 package com.pedrovisk.proxmox.utils;
 
-import com.google.common.base.CharMatcher;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;

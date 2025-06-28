@@ -11,6 +11,7 @@ import com.pedrovisk.proxmox.telegram.TelegramApi;
 import com.pedrovisk.proxmox.utils.SshUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -25,6 +26,10 @@ public class SshService {
     private final RootConfiguration rootConfiguration;
     private final NotificationSenderService notificationSenderService;
 
+    @Scheduled(initialDelay = 5000, fixedDelayString = "${update.frequency.temperature}")
+    public void call() throws Exception {
+        call(false);
+    }
 
     public void call(boolean ignoreThreshold) throws Exception {
 
@@ -47,7 +52,6 @@ public class SshService {
                 }
             }
         }
-
     }
 
     private void verifyThresholdAndSendMessage(SshConfiguration sshConfiguration, Integer result) {

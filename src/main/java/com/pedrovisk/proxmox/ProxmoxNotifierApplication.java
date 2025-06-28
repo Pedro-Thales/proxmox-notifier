@@ -1,13 +1,12 @@
 package com.pedrovisk.proxmox;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pedrovisk.proxmox.configuration.*;
+import com.pedrovisk.proxmox.configuration.FirewallLogsProperties;
+import com.pedrovisk.proxmox.configuration.ProxmoxProperties;
+import com.pedrovisk.proxmox.configuration.SshProperties;
+import com.pedrovisk.proxmox.configuration.TelegramProperties;
 import com.pedrovisk.proxmox.models.json.RootConfiguration;
 import feign.Logger;
-import io.micrometer.core.aop.TimedAspect;
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.observation.ObservationRegistry;
-import io.micrometer.observation.aop.ObservedAspect;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -25,25 +24,15 @@ import java.io.InputStream;
 
 @SpringBootApplication
 @EnableFeignClients
-@EnableConfigurationProperties({ProxmoxProperties.class, ThresholdProperties.class, FirewallLogsProperties.class,
-		TelegramProperties.class, SshProperties.class})
+@EnableConfigurationProperties({ProxmoxProperties.class, FirewallLogsProperties.class, TelegramProperties.class,
+		SshProperties.class})
 @EnableScheduling
 @Slf4j
 public class ProxmoxNotifierApplication {
 
 	@Bean
 	Logger.Level feignLoggerLevel() {
-		return Logger.Level.FULL;
-	}
-
-	@Bean
-	public ObservedAspect observedAspect(ObservationRegistry observationRegistry) {
-		return new ObservedAspect(observationRegistry);
-	}
-
-	@Bean
-	public TimedAspect timedAspect(MeterRegistry registry) {
-		return new TimedAspect(registry);
+		return Logger.Level.BASIC;
 	}
 
 	@Bean
@@ -51,6 +40,8 @@ public class ProxmoxNotifierApplication {
 		ObjectMapper objectMapper = new ObjectMapper();
 		try (InputStream in = path.getInputStream()) {
             //TODO make all configs get from the config json
+			//TODO validate json at start and throw errors or warnings at start to logs,
+			// and maybe notification? If enabled like sendNotificationsOnErrors?
 			return objectMapper.readValue(in, RootConfiguration.class);
 		} catch (Exception e) {
 			log.error("Configuration file not found! " +
@@ -59,20 +50,14 @@ public class ProxmoxNotifierApplication {
         return null;
     }
 
-	//TODO put a time/quantity limit to sent notifications, and email
 	public static void main(String[] args) {
-		var context = SpringApplication.run(ProxmoxNotifierApplication.class, args);
-//		try {
-//			TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
-//			botsApi.registerBot(context.getBean("pxmxNotifierBot", PxmxNotifierBot.class));
-//		} catch (TelegramApiException e) {
-//			throw new RuntimeException(e);
-//		}
+		//https://rubenlagus.github.io/TelegramBotsDocumentation/how-to-update-7.html#migrating-your-existing-longpolling-bots
+		SpringApplication.run(ProxmoxNotifierApplication.class, args);
 	}
 
 	@EventListener
 	void ready(ApplicationReadyEvent readyEvent) {
-		log.info("APP IS READY to...");
+		log.info("APP IS READY");
 	}
 
 }
