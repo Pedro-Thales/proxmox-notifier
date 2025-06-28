@@ -41,12 +41,12 @@ public class VmStatusService {
         for (var node : rootConfiguration.getNodes()) {
             for (var vmsConfiguration : node.getVms()) {
 
-                var componentId = STR."\{vmsConfiguration.id}-\{vmsConfiguration.name}";
+                var componentId = vmsConfiguration.id + "-" + vmsConfiguration.name;
                 var status = proxmoxApi.getVmStatus(node.getId(), String.valueOf(vmsConfiguration.getId()));
                 var vmStatus = status.getData();
 
                 if (vmStatus == null) {
-                    var message = STR."The Proxmox api returned null for the vm: \{vmsConfiguration.name}";
+                    var message = "The Proxmox api returned null for the vm: " + vmsConfiguration.name;
                     notifications.add(NotificationError.builder().componentId(componentId).componentType("VM").message(message).build());
                     log.error(message);
                     continue;
@@ -80,7 +80,11 @@ public class VmStatusService {
         }
 
         for (VmFsStatusResult result : fsStatus.getData().getResult()) {
-            var notification = NotificationThreshold.builder().actualValue(getUsedPercent(result.getUsedBytes(), result.getTotalBytes())).threshold(vmsConfiguration.usedDiskThreshold).componentId(componentId).componentType("VM").valueType(STR."Disk with mountpoint '\{result.getMountpoint()}'").build();
+            var notification = NotificationThreshold.builder()
+                    .actualValue(getUsedPercent(result.getUsedBytes(), result.getTotalBytes()))
+                    .threshold(vmsConfiguration.usedDiskThreshold).componentId(componentId)
+                    .componentType("VM")
+                    .valueType("Disk with mountpoint '" + result.getMountpoint() + "'").build();
 
             if (actualValueIsGreaterOrEqualThreshold(notification)) {
                 agentNotifications.add(notification);
@@ -91,18 +95,15 @@ public class VmStatusService {
     }
 
     private String getErrorMessageForEmptyResponseFromAgent(String componentId) {
-        return STR.
-                """
-            VM: \{componentId} agent is set to true in the config.json file, but the return of the proxmox api was empty!
-
-            Please check if the agent is installed and running in the VM.
-            """;
+        return "VM: " + componentId +
+                " agent is set to true in the config.json file, but the return of the proxmox api was empty!" +
+                "\n\nPlease check if the agent is installed and running in the VM.\n";
     }
 
 
     private List<NotificationThreshold> getResourceNotifications(VmStatus vmStatus, VmsConfiguration vmsConfiguration) {
 
-        var componentId = STR."\{vmsConfiguration.id}-\{vmsConfiguration.name}";
+        var componentId = vmsConfiguration.id + "-" + vmsConfiguration.name;
 
         return List.of(NotificationThreshold.builder().actualValue(getUsedPercent(vmStatus.getMem(), vmStatus.getMaxmem())).threshold(vmsConfiguration.usedMemoryThreshold).componentId(componentId).valueType("Memory").componentType("VM").build(), NotificationThreshold.builder().actualValue(BigDecimal.valueOf(vmStatus.getCpu() * 100)).threshold(vmsConfiguration.usedCpuThreshold).componentId(componentId).valueType("Cpu").componentType("VM").build());
 

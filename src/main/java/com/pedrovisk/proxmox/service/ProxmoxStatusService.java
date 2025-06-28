@@ -99,7 +99,7 @@ public class ProxmoxStatusService {
             }
 
             var resourceUsedValuesDTO = getResourceValues(nodeStatus);
-            var componentId = STR."\{nodeConfiguration.getId()} - \{nodeConfiguration.getName()}";
+            var componentId = nodeConfiguration.getId() + " - " + nodeConfiguration.getName();
             //TODO refactor ResourceMapper to not use it or make it generic to be used in other places,
             // get rid of containerConfiguration?
             var resourceMapper = new ResourceMapper(nodeConfiguration, resourceUsedValuesDTO, componentId, "LXC");

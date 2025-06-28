@@ -24,11 +24,7 @@ public class NotificationTemperature extends NotificationBase {
     @Override
     public String getMessage() {
 
-        return STR.
-                """
-                Temperature Alert: Device \{this.getComponentId()}
-                    Actual Temperature: \{String.valueOf(this.getActualValue())}
-                    Threshold: \{this.getThreshold()}
-                """;
+        return "Temperature Alert: Device " + this.getComponentId() + "\n    Actual Temperature: " +
+                this.getActualValue() + "\n    Threshold: " + this.getThreshold() + "\n";
     }
 }

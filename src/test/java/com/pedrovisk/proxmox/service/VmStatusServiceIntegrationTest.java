@@ -195,7 +195,7 @@ class VmStatusServiceIntegrationTest {
         verify(notificationSenderService, times(4)).sendNotification(captor.capture());
 
 
-        var errorMessage = STR."""
+        var errorMessage = """
                 VM: 2-container2 agent is set to true in the config.json file, but the return of the proxmox api was empty!
                 
                 Please check if the agent is installed and running in the VM.

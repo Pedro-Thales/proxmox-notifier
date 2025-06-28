@@ -88,7 +88,7 @@ public class SshService {
 
     private Integer getFromSensorsCommand(String grepFilter) throws Exception {
 
-        String command = STR."sensors | grep '\{grepFilter}'";
+        String command = "sensors | grep '" + grepFilter + "'";
         var cmdResult = executeSshCommand(command);
         if (cmdResult.contains(":")) {
             var cmdSubs = cmdResult.substring(cmdResult.indexOf(":") + 1, cmdResult.indexOf("."));

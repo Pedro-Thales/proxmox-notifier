@@ -14,9 +14,6 @@ public class NotificationStoppedComponent extends NotificationBase {
     @Override
     public String getMessage() {
 
-        return STR.
-                """
-                \{this.getComponentType()}: \{this.getComponentId()} is not running.
-                """;
+        return this.getComponentType() + ": " + this.getComponentId() + " is not running.\n";
     }
 }

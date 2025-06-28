@@ -26,11 +26,8 @@ public class NotificationThreshold extends NotificationBase {
     @Override
     public String getMessage() {
 
-        return STR.
-                """
-                \{this.getComponentType()}: \{this.getComponentId()} with used \{this.getValueType()} getting dangerous
-                    Actual used: \{String.valueOf(this.getActualValue())}
-                    Threshold: \{this.getThreshold()}
-                """;
+        return this.getComponentType() + ": " + this.getComponentId() + " with used " + this.getValueType()
+                + " getting dangerous\n    Actual used: " + this.getActualValue()
+                + "\n    Threshold: " + this.getThreshold() + "\n";
     }
 }
